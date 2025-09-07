@@ -4,16 +4,28 @@ const horas = Array.from({length:13}, (_,i)=>8+i);
 let horariosJSON = {};
 let activeButton = null;
 
-// Usa la URL de tu hoja (pestaña "1"):
+// URL de tu hoja pública
 const SHEET_URL = "https://opensheet.elk.sh/1J8gZdT3VF1DJZ37kxTo8LRw7-2VOFfFSDc5Iu2YFVWQ/1";
 
-// Convierte el array plano del spreadsheet a objeto anidado por salón y día
+// Función para normalizar palabras (quita tildes y pone mayúscula inicial)
+function normalizaDia(str) {
+  if (!str) return "";
+  str = str.toLowerCase()
+    .replace(/[á]/g,'a').replace(/[é]/g,'e').replace(/[í]/g,'i').replace(/[ó]/g,'o').replace(/[ú]/g,'u');
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+function normalizaSalon(str) {
+  // Quita tildes y ajusta mayúsculas
+  if (!str) return "";
+  return str.normalize('NFD').replace(/[\u0300-\u036f]/g, "").replace(/\b([a-z])/g, l => l.toUpperCase());
+}
+
+// Convierte array plano a formato por salón y día
 function agrupaHorariosPorSalon(rows) {
   const resultado = {};
   rows.forEach(row => {
-    // Repara codificación de caracteres especiales
-    const salon = (row["Salon"] || row["Salón"] || row["salon"] || "").normalize("NFC");
-    const dia = (row["Dia"] || row["día"] || row["dia"] || "").normalize("NFC");
+    const salon = normalizaSalon(row["Salon"] || row["Salón"] || row["salon"]);
+    const dia = normalizaDia(row["Dia"] || row["día"] || row["dia"]);
     if (!salon || !dia) return;
     if (!resultado[salon]) {
       resultado[salon] = {capacidad: row["capacidad"] ? Number(row["capacidad"]) : undefined};
@@ -21,9 +33,9 @@ function agrupaHorariosPorSalon(rows) {
     }
     if (dias.includes(dia)) {
       resultado[salon][dia].push({
-        materia: (row["Materia"] || row["materia"] || "").normalize("NFC"),
-        inicio: (row["Inicio"] || row["inicio"] || ""),
-        fin: (row["Fin"] || row["fin"] || ""),
+        materia: row["Materia"] || row["materia"] || "",
+        inicio: row["Inicio"] || row["inicio"] || "",
+        fin: row["Fin"] || row["fin"] || "",
         tipo: row["tipo"] || "",
         comentario: row["comentario"] || ""
       });
@@ -66,13 +78,13 @@ function renderCalendario(id, data, nombre) {
   const cont = document.getElementById(id);
   cont.innerHTML = "";
   cont.className = "horario-container";
-  // Title & capacidad (if exists)
+  // Título y capacidad
   const tit = document.createElement("h2");
   tit.textContent = nombre;
   cont.appendChild(tit);
   if (horariosJSON[nombre] && horariosJSON[nombre].capacidad)
     cont.innerHTML += `<div style="font-size:15px; color:#388;">Capacidad: ${horariosJSON[nombre].capacidad} alumnos</div>`;
-  // Table
+  // Tabla visual
   const cal = document.createElement("div");
   cal.className = "calendario";
   cont.appendChild(cal);
@@ -117,7 +129,7 @@ function showSchedule(nombre, btn) {
   renderCalendario('horario-espacio', eventos, nombre);
 }
 
-// --- Cargar desde Google Sheets ---
+// --- Cargar datos desde Google Sheets ---
 fetch(SHEET_URL)
   .then(r=>r.json())
   .then(rows=>{
