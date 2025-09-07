@@ -166,7 +166,7 @@ function renderCalendario(id, data, nombre) {
     grid-template-columns: 120px repeat(${dias.length}, 1fr);
     grid-template-rows: auto repeat(${intervalos.length}, 40px);
     gap: 1px;
-    background-color: #b3d4be;
+    background-color: #f0f5f2;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 2px 12px rgba(0,0,0,0.1);
