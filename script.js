@@ -1,5 +1,11 @@
 const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
-const horas = Array.from({length:13}, (_,i)=>8+i);
+// 08:00 a 20:00, intervalos de 30 minutos
+const horaInicio = 8, horaFin = 20;
+const intervalos = [];
+for (let h = horaInicio; h < horaFin; h++) {
+  intervalos.push({inicio:`${String(h).padStart(2,'0')}:00`, fin:`${String(h).padStart(2,'0')}:30`});
+  intervalos.push({inicio:`${String(h).padStart(2,'0')}:30`, fin:`${String(h+1).padStart(2,'0')}:00`});
+}
 
 let horariosJSON = {};
 let activeButton = null;
@@ -7,7 +13,7 @@ let activeButton = null;
 // URL de tu hoja pública
 const SHEET_URL = "https://opensheet.elk.sh/1J8gZdT3VF1DJZ37kxTo8LRw7-2VOFfFSDc5Iu2YFVWQ/1";
 
-// Función para normalizar palabras (quita tildes y pone mayúscula inicial)
+// Normaliza día y salón
 function normalizaDia(str) {
   if (!str) return "";
   str = str.toLowerCase()
@@ -15,7 +21,6 @@ function normalizaDia(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 function normalizaSalon(str) {
-  // Quita tildes y ajusta mayúsculas
   if (!str) return "";
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, "").replace(/\b([a-z])/g, l => l.toUpperCase());
 }
@@ -74,50 +79,76 @@ function convertirADatosEventos(nombre, horariosSalon) {
   return eventos;
 }
 
+// ¡NUEVA función tipo calendario!
 function renderCalendario(id, data, nombre) {
   const cont = document.getElementById(id);
   cont.innerHTML = "";
   cont.className = "horario-container";
+
   // Título y capacidad
   const tit = document.createElement("h2");
   tit.textContent = nombre;
   cont.appendChild(tit);
   if (horariosJSON[nombre] && horariosJSON[nombre].capacidad)
     cont.innerHTML += `<div style="font-size:15px; color:#388;">Capacidad: ${horariosJSON[nombre].capacidad} alumnos</div>`;
-  // Tabla visual
-  const cal = document.createElement("div");
-  cal.className = "calendario";
-  cont.appendChild(cal);
-  cal.appendChild(document.createElement("div"));
-  dias.forEach(d => {
-    const diaHead = document.createElement("div");
-    diaHead.textContent = d;
-    diaHead.className = "dia-header";
-    cal.appendChild(diaHead);
-  });
-  horas.forEach(h => {
-    const horaDiv = document.createElement("div");
-    horaDiv.textContent = `${h}:00`;
-    horaDiv.className = "hora";
-    cal.appendChild(horaDiv);
-    dias.forEach(() => {
-      const celda = document.createElement("div");
-      cal.appendChild(celda);
+
+  // Crear tabla tipo grid
+  const tabla = document.createElement("table");
+  tabla.className = "horario-tabla";
+  cont.appendChild(tabla);
+
+  // Cabecera
+  const thead = document.createElement("thead");
+  const trh = document.createElement("tr");
+  trh.innerHTML = `<th>Hora</th>`;
+  dias.forEach(d => trh.innerHTML += `<th>${d}</th>`);
+  thead.appendChild(trh);
+  tabla.appendChild(thead);
+
+  // Matriz para saber en qué celdas ya hay rowSpan
+  const ocupadas = Array.from({length:intervalos.length},()=>dias.map(()=>false));
+
+  // Body
+  const tbody = document.createElement("tbody");
+  tabla.appendChild(tbody);
+
+  intervalos.forEach(({inicio,fin}, fila) => {
+    const tr = document.createElement("tr");
+    // Columna hora
+    tr.innerHTML = `<td>${inicio} - ${fin}</td>`;
+    dias.forEach((dia, colDia) => {
+      if (ocupadas[fila][colDia]) return; // Esta celda ya está ocupada por rowSpan
+      // ¿Hay clase que empieza justo aquí?
+      const clase = data.find(ev => ev.dia === dia && ev.inicio === inicio);
+      if(clase) {
+        // ¿Cuántos intervalos ocupa?
+        let duracion = 1;
+        let t = inicio;
+        while(true) {
+          // Nueva hora
+          const [h,m] = t.split(":").map(Number);
+          let next;
+          if(m === 0) next = `${String(h).padStart(2,'0')}:30`;
+          else next = `${String(h+1).padStart(2,'0')}:00`;
+          if(next === clase.fin) break;
+          duracion++;
+          t = next;
+        }
+        // Marca intervalos ocupados
+        for(let k=0;k<duracion;k++) if(fila+k<ocupadas.length) ocupadas[fila+k][colDia]=true;
+        // Dibuja bloque
+        const td = document.createElement("td");
+        td.rowSpan = duracion;
+        td.className = clase.tipo === "extraordinaria" ? "bloque-clase extraordinaria" : "bloque-clase";
+        td.innerHTML = `<b>${clase.materia}</b><br><span style="font-size:12px">${clase.inicio} - ${clase.fin}</span>`;
+        if(clase.comentario) td.title = clase.comentario;
+        tr.appendChild(td);
+      } else {
+        const td = document.createElement("td");
+        tr.appendChild(td);
+      }
     });
-  });
-  data.forEach((ev, idx) => {
-    const diaIndex = dias.indexOf(ev.dia) + 2;
-    const inicio = parseFloat(ev.inicio.replace(":30",".5").replace(":00",".0"));
-    const fin = parseFloat(ev.fin.replace(":30",".5").replace(":00",".0"));
-    const rowStart = Math.floor((inicio-8)*2)+2; 
-    const duration = (fin - inicio)*2;
-    const evento = document.createElement("div");
-    evento.className = `evento color-${ev.tipo === "extraordinaria" ? 3 : ((idx % 5)+1)}`;
-    evento.style.gridColumn = diaIndex;
-    evento.style.gridRow = `${rowStart} / span ${duration}`;
-    evento.textContent = ev.materia;
-    if (ev.comentario) evento.title = ev.comentario;
-    cal.appendChild(evento);
+    tbody.appendChild(tr);
   });
 }
 
@@ -143,3 +174,4 @@ fetch(SHEET_URL)
     document.getElementById('horario-espacio').innerHTML = "<b>Error cargando datos.</b>";
     console.error(e);
   });
+
