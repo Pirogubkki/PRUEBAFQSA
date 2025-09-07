@@ -41,9 +41,21 @@ function normalizaHora(horaStr) {
 // Función para calcular cuántos intervalos de 30 min hay entre dos horas
 function calcularDuracionEnIntervalos(inicio, fin) {
   const inicioIdx = intervalos.findIndex(intervalo => intervalo.inicio === inicio);
-  const finIdx = intervalos.findIndex(intervalo => intervalo.fin === fin);
+  let finIdx = -1;
   
-  if (inicioIdx === -1 || finIdx === -1) return 1;
+  // Buscar el intervalo que termina a la hora especificada
+  for (let i = 0; i < intervalos.length; i++) {
+    if (intervalos[i].fin === fin) {
+      finIdx = i;
+      break;
+    }
+  }
+  
+  if (inicioIdx === -1 || finIdx === -1) {
+    console.warn(`No se pudo calcular duración para ${inicio} - ${fin}`);
+    return 1;
+  }
+  
   return finIdx - inicioIdx + 1;
 }
 
@@ -103,7 +115,7 @@ function convertirADatosEventos(nombre, horariosSalon) {
   return eventos;
 }
 
-// Función renderCalendario tipo horario tabla - CORREGIDA
+// NUEVA FUNCIÓN DE RENDERIZADO - COMPLETAMENTE REESCRITA
 function renderCalendario(id, data, nombre) {
   const cont = document.getElementById(id);
   cont.innerHTML = "";
@@ -134,14 +146,46 @@ function renderCalendario(id, data, nombre) {
   thead.appendChild(trh);
   tabla.appendChild(thead);
 
-  // Matriz para rastrear celdas ocupadas [fila][columna]
-  const celdasOcupadas = Array(intervalos.length).fill(null).map(() => Array(dias.length).fill(false));
+  // Crear matriz de celdas - cada posición representa [fila][día]
+  const matriz = Array(intervalos.length).fill(null).map(() => 
+    Array(dias.length).fill(null).map(() => ({ ocupada: false, elemento: null }))
+  );
 
-  // Cuerpo de la tabla
+  // Llenar la matriz con las clases
+  data.forEach(clase => {
+    const diaIdx = dias.indexOf(clase.dia);
+    const inicioIdx = intervalos.findIndex(int => int.inicio === clase.inicio);
+    
+    if (diaIdx === -1 || inicioIdx === -1) {
+      console.warn(`Clase no encontrada en matriz: ${clase.materia} - ${clase.dia} ${clase.inicio}`);
+      return;
+    }
+
+    const duracion = calcularDuracionEnIntervalos(clase.inicio, clase.fin);
+    
+    // Crear elemento de clase
+    const claseElement = {
+      materia: clase.materia,
+      inicio: clase.inicio,
+      fin: clase.fin,
+      tipo: clase.tipo,
+      comentario: clase.comentario,
+      duracion: duracion
+    };
+
+    // Marcar celdas ocupadas y asignar elemento solo a la primera
+    for (let i = 0; i < duracion && (inicioIdx + i) < intervalos.length; i++) {
+      matriz[inicioIdx + i][diaIdx].ocupada = true;
+      if (i === 0) {
+        matriz[inicioIdx + i][diaIdx].elemento = claseElement;
+      }
+    }
+  });
+
+  // Generar tabla HTML
   const tbody = document.createElement("tbody");
   tabla.appendChild(tbody);
 
-  // Procesar cada fila de intervalos
   for (let filaIdx = 0; filaIdx < intervalos.length; filaIdx++) {
     const intervalo = intervalos[filaIdx];
     const tr = document.createElement("tr");
@@ -149,53 +193,56 @@ function renderCalendario(id, data, nombre) {
     // Celda de hora
     const tdHora = document.createElement("td");
     tdHora.textContent = `${intervalo.inicio} - ${intervalo.fin}`;
+    tdHora.className = "celda-hora";
     tr.appendChild(tdHora);
 
-    // Procesar cada día
+    // Celdas de días
     for (let diaIdx = 0; diaIdx < dias.length; diaIdx++) {
-      const dia = dias[diaIdx];
+      const celda = matriz[filaIdx][diaIdx];
       
-      // Si la celda ya está ocupada por una clase anterior, no crear nueva celda
-      if (celdasOcupadas[filaIdx][diaIdx]) {
-        continue;
+      // Si está ocupada pero no tiene elemento, significa que es parte de una clase anterior
+      if (celda.ocupada && !celda.elemento) {
+        continue; // No crear celda, ya está cubierta por rowspan anterior
       }
-
-      // Buscar si hay una clase que comience en este intervalo y día
-      const clase = data.find(ev => 
-        ev.dia === dia && ev.inicio === intervalo.inicio
-      );
-
-      if (clase) {
-        // Calcular duración en intervalos
-        const duracion = calcularDuracionEnIntervalos(clase.inicio, clase.fin);
-        
-        // Marcar celdas como ocupadas
-        for (let i = 0; i < duracion && (filaIdx + i) < intervalos.length; i++) {
-          celdasOcupadas[filaIdx + i][diaIdx] = true;
-        }
-
-        // Crear celda de clase
+      
+      // Si tiene elemento (inicio de una clase)
+      if (celda.elemento) {
         const td = document.createElement("td");
-        td.rowSpan = duracion;
-        td.className = "bloque-clase" + (clase.tipo === "extraordinaria" ? " extraordinaria" : "");
+        td.rowSpan = celda.elemento.duracion;
         
+        // Determinar clase CSS
+        let claseCSS = "bloque-clase";
+        if (celda.elemento.tipo === "extraordinaria") {
+          claseCSS += " extraordinaria";
+        } else {
+          claseCSS += " semestral";
+        }
+        td.className = claseCSS;
+        
+        // Contenido de la celda
         const materiaDiv = document.createElement("div");
-        materiaDiv.innerHTML = `<b>${clase.materia}</b>`;
+        materiaDiv.className = "materia-nombre";
+        materiaDiv.textContent = celda.elemento.materia;
         td.appendChild(materiaDiv);
         
         const horarioDiv = document.createElement("div");
-        horarioDiv.style.fontSize = "13px";
-        horarioDiv.textContent = `${clase.inicio} - ${clase.fin}`;
+        horarioDiv.className = "materia-horario";
+        horarioDiv.textContent = `${celda.elemento.inicio} - ${celda.elemento.fin}`;
         td.appendChild(horarioDiv);
         
-        if (clase.comentario) {
-          td.title = clase.comentario;
+        if (celda.elemento.comentario) {
+          const comentarioDiv = document.createElement("div");
+          comentarioDiv.className = "materia-comentario";
+          comentarioDiv.textContent = celda.elemento.comentario;
+          td.appendChild(comentarioDiv);
+          td.title = celda.elemento.comentario;
         }
         
         tr.appendChild(td);
       } else {
-        // Crear celda vacía
+        // Celda vacía
         const td = document.createElement("td");
+        td.className = "celda-vacia";
         tr.appendChild(td);
       }
     }
