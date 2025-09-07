@@ -1,27 +1,27 @@
-const dias = ["Lunes","Martes","Miércoles","Jueves","Viernes"];
-const horas = Array.from({length:13},(_,i)=>8+i);
+const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
+const horas = Array.from({length:13}, (_,i)=>8+i);
 
 let horariosJSON = {};
 let activeButton = null;
 
-// Usa tu URL pública de Google Sheets:
+// Tu URL de Google Sheet:
 const SHEET_URL = "https://opensheet.elk.sh/1J8gZdT3VF1DJZ37kxTo8LRw7-2VOFfFSDc5Iu2YFVWQ/Solicitudes";
 
-// Convierte el array de filas a objeto agrupado por salón:
 function agrupaHorariosPorSalon(rows) {
   const resultado = {};
   rows.forEach(row => {
-    const salon = row["Salon"] || row["Salón"];
-    if(!salon) return;
+    // Ajusta aquí los nombres según tu Google Sheet
+    const salon = row["Salon"] || row["Salón"] || row["salon"];
+    if (!salon) return;
     if (!resultado[salon]) {
       resultado[salon] = {capacidad: row["capacidad"] ? Number(row["capacidad"]) : undefined};
       dias.forEach(dia => resultado[salon][dia] = []);
     }
     if (dias.includes(row["Dia"])) {
       resultado[salon][row["Dia"]].push({
-        materia: row["Materia"],
-        inicio: row["Inicio"],
-        fin: row["Fin"],
+        materia: row["Materia"] || row["materia"],
+        inicio: row["Inicio"] || row["inicio"],
+        fin: row["Fin"] || row["fin"],
         tipo: row["tipo"] || "",
         comentario: row["comentario"] || ""
       });
@@ -34,24 +34,7 @@ function renderAllButtons(horarios) {
   const bar = document.getElementById('button-bar');
   bar.innerHTML = "";
 
-  let salones = Object.keys(horarios).filter(k => k.toLowerCase().startsWith('salón')).slice(0, 12);
-  salones.forEach(nombre => {
-    const btn = document.createElement('button');
-    btn.textContent = nombre;
-    btn.onclick = () => showSchedule(nombre, btn);
-    bar.appendChild(btn);
-  });
-
-  let labs = Object.keys(horarios).filter(k => k.toLowerCase().startsWith('laboratorio')).slice(0, 4);
-  labs.forEach(nombre => {
-    const btn = document.createElement('button');
-    btn.textContent = nombre;
-    btn.onclick = () => showSchedule(nombre, btn);
-    bar.appendChild(btn);
-  });
-
-  let usos = Object.keys(horarios).filter(k => k.toLowerCase().includes('usos'));
-  usos.forEach(nombre => {
+  Object.keys(horarios).forEach(nombre => {
     const btn = document.createElement('button');
     btn.textContent = nombre;
     btn.onclick = () => showSchedule(nombre, btn);
@@ -77,6 +60,7 @@ function convertirADatosEventos(nombre, horariosSalon) {
   });
   return eventos;
 }
+
 function renderCalendario(id, data, nombre) {
   const cont = document.getElementById(id);
   cont.innerHTML = "";
@@ -123,6 +107,7 @@ function renderCalendario(id, data, nombre) {
     cal.appendChild(evento);
   });
 }
+
 function showSchedule(nombre, btn) {
   if(activeButton) activeButton.classList.remove('active');
   btn.classList.add('active');
@@ -131,10 +116,17 @@ function showSchedule(nombre, btn) {
   renderCalendario('horario-espacio', eventos, nombre);
 }
 
-// --- AQUÍ: Cargar desde Google Sheets ---
+// --- Cargar desde Google Sheets ---
 fetch(SHEET_URL)
   .then(r=>r.json())
   .then(rows=>{
     horariosJSON = agrupaHorariosPorSalon(rows);
-    renderAllButtons(horariosJSON);
+    if (Object.keys(horariosJSON).length === 0) {
+      document.getElementById('horario-espacio').innerHTML = "<b>No hay horarios cargados.</b>";
+    } else {
+      renderAllButtons(horariosJSON);
+    }
+  }).catch(e=>{
+    document.getElementById('horario-espacio').innerHTML = "<b>Error cargando datos.</b>";
+    console.error(e);
   });
