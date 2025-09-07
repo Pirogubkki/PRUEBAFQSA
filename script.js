@@ -1,124 +1,140 @@
-function openSolicitud() {
-  document.getElementById('modal-solicitud-bg').classList.add('active');
-}
-function closeSolicitud() {
-  document.getElementById('modal-solicitud-bg').classList.remove('active');
-}
-document.addEventListener('DOMContentLoaded', function() {
-  const modalBg = document.getElementById('modal-solicitud-bg');
-  if(modalBg) {
-    modalBg.onclick = function(e) {
-      if (e.target === this) closeSolicitud();
-    };
-  }
-});
+const dias = ["Lunes","Martes","Miércoles","Jueves","Viernes"];
+const horas = Array.from({length:13},(_,i)=>8+i);
 
-// Tabs logic
-function openTab(tabName) {
-  document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-  document.getElementById(tabName).classList.add('active');
-  document.querySelectorAll('.tabs button').forEach(btn => btn.classList.remove('active'));
-  document.querySelector('.tabs button[data-tab="'+tabName+'"]').classList.add('active');
-}
+let horariosJSON = {};
+let activeButton = null;
 
-// Sidebar logic
-function openSidebar() {
-  document.getElementById('sidebar').classList.add('active');
-}
-function closeSidebar() {
-  document.getElementById('sidebar').classList.remove('active');
-}
+// Usa tu URL pública de Google Sheets:
+const SHEET_URL = "https://opensheet.elk.sh/1J8gZdT3VF1DJZ37kxTo8LRw7-2VOFfFSDc5Iu2YFVWQ/Solicitudes";
 
-// Configuración de horario en bloques de 30 minutos
-const DIAS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
-const H_INICIO = 8, H_FIN = 20; // 8am to 8pm
-
-function timeToMinutes(str) {
-  const [h, m] = str.split(":").map(Number);
-  return h * 60 + m;
-}
-function minutesToHHMM(mins) {
-  const h = Math.floor(mins / 60).toString().padStart(2, "0");
-  const m = (mins % 60).toString().padStart(2, "0");
-  return `${h}:${m}`;
-}
-function getHalfHourRows() {
-  let rows = [];
-  for (let m = H_INICIO * 60; m < H_FIN * 60; m += 30) {
-    rows.push({ start: m, end: m + 30 });
-  }
-  return rows;
-}
-
-let horarios = {};
-fetch('horarios.json')
-  .then(r => r.json())
-  .then(data => {
-    horarios = data;
-    cargarSubmenuSalones();
-    mostrarHorarioDeSalon("Salón 1");
-  });
-
-function cargarSubmenuSalones() {
-  const submenu = document.getElementById('submenu-salones');
-  submenu.innerHTML = '';
-  Object.keys(horarios).forEach(salon => {
-    const btn = document.createElement('button');
-    btn.textContent = salon;
-    btn.onclick = () => {
-      document.querySelectorAll('.submenu-salones button').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-      mostrarHorarioDeSalon(salon);
-    };
-    if(salon==="Salón 1") btn.classList.add('active');
-    submenu.appendChild(btn);
-  });
-}
-
-function mostrarHorarioDeSalon(salon) {
-  const horario = horarios[salon];
-  const tablaDiv = document.getElementById('horario-salon');
-  tablaDiv.innerHTML = "";
-
-  const rows = getHalfHourRows();
-  let tabla = `<div class="horario-tabla"><table><thead><tr><th>Hora</th>`;
-  for(let dia of DIAS) tabla += `<th>${dia}</th>`;
-  tabla += `</tr></thead><tbody>`;
-
-  // Map for row/colspan logic
-  let cellOccupied = {};
-  for (let dia of DIAS) cellOccupied[dia] = Array(rows.length).fill(false);
-
-  for (let i = 0; i < rows.length; i++) {
-    let { start, end } = rows[i];
-    let horaLabel = `${minutesToHHMM(start)} - ${minutesToHHMM(end)}`;
-    tabla += `<tr><td>${horaLabel}</td>`;
-
-    for (let dia of DIAS) {
-      if (cellOccupied[dia][i]) { tabla += ""; continue; }
-
-      // Find class starting in this slot
-      const clases = horario[dia] || [];
-      const clase = clases.find(c => timeToMinutes(c.inicio) === start);
-
-      if (clase) {
-        const ini = timeToMinutes(clase.inicio), fin = timeToMinutes(clase.fin);
-        let rowspan = Math.max(1, Math.round((fin - ini) / 30));
-        // Mark rows as occupied
-        for (let j = 1; j < rowspan; j++) cellOccupied[dia][i + j] = true;
-        let claseExtra = clase.tipo && clase.tipo.toLowerCase() === "extraordinaria" ? "extraordinaria" : "";
-        tabla += `<td rowspan="${rowspan}" style="position:relative;vertical-align:middle;">
-          <div class="bloque-clase ${claseExtra}">
-            <b>${clase.materia}</b>
-            <div style="font-size:12px">${clase.inicio} - ${clase.fin}</div>
-          </div>
-        </td>`;
-      } else {
-        tabla += `<td></td>`;
-      }
+// Convierte el array de filas a objeto agrupado por salón:
+function agrupaHorariosPorSalon(rows) {
+  const resultado = {};
+  rows.forEach(row => {
+    const salon = row["Salon"] || row["Salón"];
+    if(!salon) return;
+    if (!resultado[salon]) {
+      resultado[salon] = {capacidad: row["capacidad"] ? Number(row["capacidad"]) : undefined};
+      dias.forEach(dia => resultado[salon][dia] = []);
     }
-    tabla += `</tr>`;
-  }
-  tabla += `</tbody></table></div>`;
-  tablaDiv.innerHTML = tabla;
+    if (dias.includes(row["Dia"])) {
+      resultado[salon][row["Dia"]].push({
+        materia: row["Materia"],
+        inicio: row["Inicio"],
+        fin: row["Fin"],
+        tipo: row["tipo"] || "",
+        comentario: row["comentario"] || ""
+      });
+    }
+  });
+  return resultado;
 }
+
+function renderAllButtons(horarios) {
+  const bar = document.getElementById('button-bar');
+  bar.innerHTML = "";
+
+  let salones = Object.keys(horarios).filter(k => k.toLowerCase().startsWith('salón')).slice(0, 12);
+  salones.forEach(nombre => {
+    const btn = document.createElement('button');
+    btn.textContent = nombre;
+    btn.onclick = () => showSchedule(nombre, btn);
+    bar.appendChild(btn);
+  });
+
+  let labs = Object.keys(horarios).filter(k => k.toLowerCase().startsWith('laboratorio')).slice(0, 4);
+  labs.forEach(nombre => {
+    const btn = document.createElement('button');
+    btn.textContent = nombre;
+    btn.onclick = () => showSchedule(nombre, btn);
+    bar.appendChild(btn);
+  });
+
+  let usos = Object.keys(horarios).filter(k => k.toLowerCase().includes('usos'));
+  usos.forEach(nombre => {
+    const btn = document.createElement('button');
+    btn.textContent = nombre;
+    btn.onclick = () => showSchedule(nombre, btn);
+    bar.appendChild(btn);
+  });
+}
+
+function convertirADatosEventos(nombre, horariosSalon) {
+  const eventos = [];
+  dias.forEach(dia => {
+    if (horariosSalon[dia]) {
+      horariosSalon[dia].forEach(clase => {
+        eventos.push({
+          dia: dia,
+          inicio: clase.inicio,
+          fin: clase.fin,
+          materia: clase.materia,
+          tipo: clase.tipo,
+          comentario: clase.comentario
+        });
+      });
+    }
+  });
+  return eventos;
+}
+function renderCalendario(id, data, nombre) {
+  const cont = document.getElementById(id);
+  cont.innerHTML = "";
+  cont.className = "horario-container";
+  // Title & capacidad (if exists)
+  const tit = document.createElement("h2");
+  tit.textContent = nombre;
+  cont.appendChild(tit);
+  if (horariosJSON[nombre] && horariosJSON[nombre].capacidad)
+    cont.innerHTML += `<div style="font-size:15px; color:#388;">Capacidad: ${horariosJSON[nombre].capacidad} alumnos</div>`;
+  // Table
+  const cal = document.createElement("div");
+  cal.className = "calendario";
+  cont.appendChild(cal);
+  cal.appendChild(document.createElement("div"));
+  dias.forEach(d => {
+    const diaHead = document.createElement("div");
+    diaHead.textContent = d;
+    diaHead.className = "dia-header";
+    cal.appendChild(diaHead);
+  });
+  horas.forEach(h => {
+    const horaDiv = document.createElement("div");
+    horaDiv.textContent = `${h}:00`;
+    horaDiv.className = "hora";
+    cal.appendChild(horaDiv);
+    dias.forEach(() => {
+      const celda = document.createElement("div");
+      cal.appendChild(celda);
+    });
+  });
+  data.forEach((ev, idx) => {
+    const diaIndex = dias.indexOf(ev.dia) + 2;
+    const inicio = parseFloat(ev.inicio.replace(":30",".5").replace(":00",".0"));
+    const fin = parseFloat(ev.fin.replace(":30",".5").replace(":00",".0"));
+    const rowStart = Math.floor((inicio-8)*2)+2; 
+    const duration = (fin - inicio)*2;
+    const evento = document.createElement("div");
+    evento.className = `evento color-${ev.tipo === "extraordinaria" ? 3 : ((idx % 5)+1)}`;
+    evento.style.gridColumn = diaIndex;
+    evento.style.gridRow = `${rowStart} / span ${duration}`;
+    evento.textContent = ev.materia;
+    if (ev.comentario) evento.title = ev.comentario;
+    cal.appendChild(evento);
+  });
+}
+function showSchedule(nombre, btn) {
+  if(activeButton) activeButton.classList.remove('active');
+  btn.classList.add('active');
+  activeButton = btn;
+  const eventos = convertirADatosEventos(nombre, horariosJSON[nombre]);
+  renderCalendario('horario-espacio', eventos, nombre);
+}
+
+// --- AQUÍ: Cargar desde Google Sheets ---
+fetch(SHEET_URL)
+  .then(r=>r.json())
+  .then(rows=>{
+    horariosJSON = agrupaHorariosPorSalon(rows);
+    renderAllButtons(horariosJSON);
+  });
