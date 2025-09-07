@@ -48,7 +48,7 @@ body {
   background: rgba(240, 90, 170, 0.7);
 }
 
-.submenu-salones {
+.submenu-salones, #button-bar {
   margin: 18px 0;
   padding-left: 12px;
   flex-wrap: wrap;
