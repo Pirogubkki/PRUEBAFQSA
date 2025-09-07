@@ -24,6 +24,16 @@ function normalizaSalon(str) {
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, "").replace(/\b([a-z])/g, l => l.toUpperCase());
 }
 
+// Normaliza hora para tener dos dígitos en la hora
+function normalizaHora(horaStr) {
+  if (!horaStr) return "";
+  const parts = horaStr.split(':');
+  if (parts[0].length === 1) {
+    parts[0] = '0' + parts[0];
+  }
+  return parts.join(':');
+}
+
 // Convierte array plano a formato por salón y día
 function agrupaHorariosPorSalon(rows) {
   const resultado = {};
@@ -38,8 +48,8 @@ function agrupaHorariosPorSalon(rows) {
     if (dias.includes(dia)) {
       resultado[salon][dia].push({
         materia: row["Materia"] || row["materia"] || "",
-        inicio: row["Inicio"] || row["inicio"] || "",
-        fin: row["Fin"] || row["fin"] || "",
+        inicio: normalizaHora(row["Inicio"] || row["inicio"] || ""),
+        fin: normalizaHora(row["Fin"] || row["fin"] || ""),
         tipo: row["tipo"] || "",
         comentario: row["comentario"] || ""
       });
