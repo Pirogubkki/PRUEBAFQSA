@@ -1,5 +1,4 @@
 const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
-// 08:00 a 20:00, intervalos de 30 minutos
 const horaInicio = 8, horaFin = 20;
 const intervalos = [];
 for (let h = horaInicio; h < horaFin; h++) {
@@ -50,7 +49,7 @@ function agrupaHorariosPorSalon(rows) {
 }
 
 function renderAllButtons(horarios) {
-  const bar = document.getElementById('button-bar');
+  const bar = document.getElementById('button-bar') || document.getElementById('submenu-salones'); // compatible con ambos ids
   bar.innerHTML = "";
   Object.keys(horarios).forEach(nombre => {
     const btn = document.createElement('button');
@@ -79,7 +78,7 @@ function convertirADatosEventos(nombre, horariosSalon) {
   return eventos;
 }
 
-// ¡NUEVA función tipo calendario!
+// NUEVA función renderCalendario tipo horario tabla
 function renderCalendario(id, data, nombre) {
   const cont = document.getElementById(id);
   cont.innerHTML = "";
@@ -117,7 +116,7 @@ function renderCalendario(id, data, nombre) {
     // Columna hora
     tr.innerHTML = `<td>${inicio} - ${fin}</td>`;
     dias.forEach((dia, colDia) => {
-      if (ocupadas[fila][colDia]) return; // Esta celda ya está ocupada por rowSpan
+      if (ocupadas[fila][colDia]) return; // Ya ocupada por rowSpan
       // ¿Hay clase que empieza justo aquí?
       const clase = data.find(ev => ev.dia === dia && ev.inicio === inicio);
       if(clase) {
@@ -157,7 +156,12 @@ function showSchedule(nombre, btn) {
   btn.classList.add('active');
   activeButton = btn;
   const eventos = convertirADatosEventos(nombre, horariosJSON[nombre]);
-  renderCalendario('horario-espacio', eventos, nombre);
+  // para compatibilidad con ambos ids de destino
+  if(document.getElementById('horario-espacio')) {
+    renderCalendario('horario-espacio', eventos, nombre);
+  } else {
+    renderCalendario('horario-salon', eventos, nombre);
+  }
 }
 
 // --- Cargar datos desde Google Sheets ---
@@ -166,12 +170,19 @@ fetch(SHEET_URL)
   .then(rows=>{
     horariosJSON = agrupaHorariosPorSalon(rows);
     if (Object.keys(horariosJSON).length === 0) {
-      document.getElementById('horario-espacio').innerHTML = "<b>No hay horarios cargados.</b>";
+      if(document.getElementById('horario-espacio')) {
+        document.getElementById('horario-espacio').innerHTML = "<b>No hay horarios cargados.</b>";
+      } else {
+        document.getElementById('horario-salon').innerHTML = "<b>No hay horarios cargados.</b>";
+      }
     } else {
       renderAllButtons(horariosJSON);
     }
   }).catch(e=>{
-    document.getElementById('horario-espacio').innerHTML = "<b>Error cargando datos.</b>";
+    if(document.getElementById('horario-espacio')) {
+      document.getElementById('horario-espacio').innerHTML = "<b>Error cargando datos.</b>";
+    } else {
+      document.getElementById('horario-salon').innerHTML = "<b>Error cargando datos.</b>";
+    }
     console.error(e);
   });
-
