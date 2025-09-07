@@ -24,9 +24,10 @@ function normalizaSalon(str) {
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, "").replace(/\b([a-z])/g, l => l.toUpperCase());
 }
 
-// Normaliza hora para tener dos dígitos en la hora
+// Normaliza hora para tener dos dígitos en la hora y limpia espacios
 function normalizaHora(horaStr) {
   if (!horaStr) return "";
+  horaStr = horaStr.trim();
   const parts = horaStr.split(':');
   if (parts[0].length === 1) {
     parts[0] = '0' + parts[0];
@@ -38,8 +39,8 @@ function normalizaHora(horaStr) {
 function agrupaHorariosPorSalon(rows) {
   const resultado = {};
   rows.forEach(row => {
-    const salon = normalizaSalon(row["Salon"] || row["Salón"] || row["salon"]);
-    const dia = normalizaDia(row["Dia"] || row["día"] || row["dia"]);
+    const salon = normalizaSalon((row["Salon"] || row["Salón"] || row["salon"] || "").trim());
+    const dia = normalizaDia((row["Dia"] || row["día"] || row["dia"] || "").trim());
     if (!salon || !dia) return;
     if (!resultado[salon]) {
       resultado[salon] = {capacidad: row["capacidad"] ? Number(row["capacidad"]) : undefined};
@@ -47,11 +48,11 @@ function agrupaHorariosPorSalon(rows) {
     }
     if (dias.includes(dia)) {
       resultado[salon][dia].push({
-        materia: row["Materia"] || row["materia"] || "",
-        inicio: normalizaHora(row["Inicio"] || row["inicio"] || ""),
-        fin: normalizaHora(row["Fin"] || row["fin"] || ""),
-        tipo: row["tipo"] || "",
-        comentario: row["comentario"] || ""
+        materia: (row["Materia"] || row["materia"] || "").trim(),
+        inicio: normalizaHora((row["Inicio"] || row["inicio"] || "").trim()),
+        fin: normalizaHora((row["Fin"] || row["fin"] || "").trim()),
+        tipo: (row["tipo"] || "").trim(),
+        comentario: (row["comentario"] || "").trim()
       });
     }
   });
@@ -59,7 +60,7 @@ function agrupaHorariosPorSalon(rows) {
 }
 
 function renderAllButtons(horarios) {
-  const bar = document.getElementById('button-bar') || document.getElementById('submenu-salones'); // compatible con ambos ids
+  const bar = document.getElementById('button-bar') || document.getElementById('submenu-salones');
   bar.innerHTML = "";
   Object.keys(horarios).forEach(nombre => {
     const btn = document.createElement('button');
@@ -88,7 +89,7 @@ function convertirADatosEventos(nombre, horariosSalon) {
   return eventos;
 }
 
-// NUEVA función renderCalendario tipo horario tabla
+// Función renderCalendario tipo horario tabla
 function renderCalendario(id, data, nombre) {
   const cont = document.getElementById(id);
   cont.innerHTML = "";
@@ -170,13 +171,11 @@ function renderCalendario(id, data, nombre) {
   }
 }
 
-
 function showSchedule(nombre, btn) {
   if(activeButton) activeButton.classList.remove('active');
   btn.classList.add('active');
   activeButton = btn;
   const eventos = convertirADatosEventos(nombre, horariosJSON[nombre]);
-  // para compatibilidad con ambos ids de destino
   if(document.getElementById('horario-espacio')) {
     renderCalendario('horario-espacio', eventos, nombre);
   } else {
