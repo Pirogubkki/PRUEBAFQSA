@@ -4,21 +4,23 @@ const horas = Array.from({length:13}, (_,i)=>8+i);
 let horariosJSON = {};
 let activeButton = null;
 
-// Tu URL de Google Sheet:
-const SHEET_URL = "https://opensheet.elk.sh/1J8gZdT3VF1DJZ37kxTo8LRw7-2VOFfFSDc5Iu2YFVWQ/Solicitudes";
+// Usa tu URL de Google Sheet (con la pestaña "1"):
+const SHEET_URL = "https://opensheet.elk.sh/1J8gZdT3VF1DJZ37kxTo8LRw7-2VOFfFSDc5Iu2YFVWQ/1";
 
+// Esta función agrupa las filas por salón y día
 function agrupaHorariosPorSalon(rows) {
   const resultado = {};
   rows.forEach(row => {
-    // Ajusta aquí los nombres según tu Google Sheet
+    // Ajusta aquí los nombres EXACTOS según tu hoja de cálculo
     const salon = row["Salon"] || row["Salón"] || row["salon"];
-    if (!salon) return;
+    const dia = row["Dia"] || row["día"] || row["dia"];
+    if (!salon || !dia) return;
     if (!resultado[salon]) {
       resultado[salon] = {capacidad: row["capacidad"] ? Number(row["capacidad"]) : undefined};
-      dias.forEach(dia => resultado[salon][dia] = []);
+      dias.forEach(d => resultado[salon][d] = []);
     }
-    if (dias.includes(row["Dia"])) {
-      resultado[salon][row["Dia"]].push({
+    if (dias.includes(dia)) {
+      resultado[salon][dia].push({
         materia: row["Materia"] || row["materia"],
         inicio: row["Inicio"] || row["inicio"],
         fin: row["Fin"] || row["fin"],
