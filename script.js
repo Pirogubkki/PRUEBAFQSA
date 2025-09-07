@@ -115,7 +115,7 @@ function convertirADatosEventos(nombre, horariosSalon) {
   return eventos;
 }
 
-// NUEVA FUNCIÓN DE RENDERIZADO - COMPLETAMENTE REESCRITA
+// NUEVA FUNCIÓN USANDO CSS GRID
 function renderCalendario(id, data, nombre) {
   const cont = document.getElementById(id);
   cont.innerHTML = "";
@@ -133,122 +133,104 @@ function renderCalendario(id, data, nombre) {
     cont.appendChild(capacidadDiv);
   }
 
-  // Crear tabla
-  const tabla = document.createElement("table");
-  tabla.className = "horario-tabla";
-  cont.appendChild(tabla);
+  // Crear contenedor grid
+  const gridContainer = document.createElement("div");
+  gridContainer.className = "horario-grid";
+  
+  // Configurar CSS Grid
+  gridContainer.style.cssText = `
+    display: grid;
+    grid-template-columns: 120px repeat(${dias.length}, 1fr);
+    grid-template-rows: auto repeat(${intervalos.length}, 40px);
+    gap: 1px;
+    background-color: #b3d4be;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    margin: 20px 0;
+  `;
+  
+  cont.appendChild(gridContainer);
 
-  // Cabecera
-  const thead = document.createElement("thead");
-  const trh = document.createElement("tr");
-  trh.innerHTML = `<th>Hora</th>`;
-  dias.forEach(d => trh.innerHTML += `<th>${d}</th>`);
-  thead.appendChild(trh);
-  tabla.appendChild(thead);
+  // Header - celda vacía para la esquina
+  const cornerCell = document.createElement("div");
+  cornerCell.className = "grid-header";
+  cornerCell.textContent = "Hora";
+  gridContainer.appendChild(cornerCell);
 
-  // Crear matriz de celdas - cada posición representa [fila][día]
-  const matriz = Array(intervalos.length).fill(null).map(() => 
-    Array(dias.length).fill(null).map(() => ({ ocupada: false, elemento: null }))
-  );
-
-  // Llenar la matriz con las clases
-  data.forEach(clase => {
-    const diaIdx = dias.indexOf(clase.dia);
-    const inicioIdx = intervalos.findIndex(int => int.inicio === clase.inicio);
-    
-    if (diaIdx === -1 || inicioIdx === -1) {
-      console.warn(`Clase no encontrada en matriz: ${clase.materia} - ${clase.dia} ${clase.inicio}`);
-      return;
-    }
-
-    const duracion = calcularDuracionEnIntervalos(clase.inicio, clase.fin);
-    
-    // Crear elemento de clase
-    const claseElement = {
-      materia: clase.materia,
-      inicio: clase.inicio,
-      fin: clase.fin,
-      tipo: clase.tipo,
-      comentario: clase.comentario,
-      duracion: duracion
-    };
-
-    // Marcar celdas ocupadas y asignar elemento solo a la primera
-    for (let i = 0; i < duracion && (inicioIdx + i) < intervalos.length; i++) {
-      matriz[inicioIdx + i][diaIdx].ocupada = true;
-      if (i === 0) {
-        matriz[inicioIdx + i][diaIdx].elemento = claseElement;
-      }
-    }
+  // Headers de días
+  dias.forEach(dia => {
+    const headerCell = document.createElement("div");
+    headerCell.className = "grid-header";
+    headerCell.textContent = dia;
+    gridContainer.appendChild(headerCell);
   });
 
-  // Generar tabla HTML
-  const tbody = document.createElement("tbody");
-  tabla.appendChild(tbody);
-
-  for (let filaIdx = 0; filaIdx < intervalos.length; filaIdx++) {
-    const intervalo = intervalos[filaIdx];
-    const tr = document.createElement("tr");
-    
+  // Para cada intervalo de tiempo
+  intervalos.forEach((intervalo, filaIdx) => {
     // Celda de hora
-    const tdHora = document.createElement("td");
-    tdHora.textContent = `${intervalo.inicio} - ${intervalo.fin}`;
-    tdHora.className = "celda-hora";
-    tr.appendChild(tdHora);
+    const horaCell = document.createElement("div");
+    horaCell.className = "grid-hora";
+    horaCell.textContent = `${intervalo.inicio} - ${intervalo.fin}`;
+    horaCell.style.cssText = `
+      grid-row: ${filaIdx + 2};
+      grid-column: 1;
+    `;
+    gridContainer.appendChild(horaCell);
 
-    // Celdas de días
-    for (let diaIdx = 0; diaIdx < dias.length; diaIdx++) {
-      const celda = matriz[filaIdx][diaIdx];
-      
-      // Si está ocupada pero no tiene elemento, significa que es parte de una clase anterior
-      if (celda.ocupada && !celda.elemento) {
-        continue; // No crear celda, ya está cubierta por rowspan anterior
-      }
-      
-      // Si tiene elemento (inicio de una clase)
-      if (celda.elemento) {
-        const td = document.createElement("td");
-        td.rowSpan = celda.elemento.duracion;
+    // Para cada día
+    dias.forEach((dia, diaIdx) => {
+      // Buscar si hay una clase que comience exactamente en este intervalo y día
+      const clase = data.find(ev => 
+        ev.dia === dia && ev.inicio === intervalo.inicio
+      );
+
+      if (clase) {
+        // Calcular duración
+        const duracion = calcularDuracionEnIntervalos(clase.inicio, clase.fin);
+        
+        // Crear celda de clase
+        const claseCell = document.createElement("div");
         
         // Determinar clase CSS
-        let claseCSS = "bloque-clase";
-        if (celda.elemento.tipo === "extraordinaria") {
+        let claseCSS = "grid-clase";
+        if (clase.tipo === "extraordinaria") {
           claseCSS += " extraordinaria";
         } else {
           claseCSS += " semestral";
         }
-        td.className = claseCSS;
+        claseCell.className = claseCSS;
         
-        // Contenido de la celda
+        // Posicionar en el grid
+        claseCell.style.cssText = `
+          grid-row: ${filaIdx + 2} / span ${duracion};
+          grid-column: ${diaIdx + 2};
+        `;
+        
+        // Contenido
         const materiaDiv = document.createElement("div");
         materiaDiv.className = "materia-nombre";
-        materiaDiv.textContent = celda.elemento.materia;
-        td.appendChild(materiaDiv);
+        materiaDiv.textContent = clase.materia;
+        claseCell.appendChild(materiaDiv);
         
         const horarioDiv = document.createElement("div");
         horarioDiv.className = "materia-horario";
-        horarioDiv.textContent = `${celda.elemento.inicio} - ${celda.elemento.fin}`;
-        td.appendChild(horarioDiv);
+        horarioDiv.textContent = `${clase.inicio} - ${clase.fin}`;
+        claseCell.appendChild(horarioDiv);
         
-        if (celda.elemento.comentario) {
+        if (clase.comentario) {
           const comentarioDiv = document.createElement("div");
           comentarioDiv.className = "materia-comentario";
-          comentarioDiv.textContent = celda.elemento.comentario;
-          td.appendChild(comentarioDiv);
-          td.title = celda.elemento.comentario;
+          comentarioDiv.textContent = clase.comentario;
+          claseCell.appendChild(comentarioDiv);
+          claseCell.title = clase.comentario;
         }
         
-        tr.appendChild(td);
-      } else {
-        // Celda vacía
-        const td = document.createElement("td");
-        td.className = "celda-vacia";
-        tr.appendChild(td);
+        gridContainer.appendChild(claseCell);
       }
-    }
-    
-    tbody.appendChild(tr);
-  }
+      // No necesitamos crear celdas vacías - CSS Grid las maneja automáticamente
+    });
+  });
 }
 
 function showSchedule(nombre, btn) {
