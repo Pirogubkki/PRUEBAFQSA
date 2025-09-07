@@ -301,20 +301,39 @@ body {
   font-weight: 600;
 }
 
-/* Responsive */
+/* Responsive para CSS Grid */
 @media (max-width: 768px) {
-  .horario-tabla {
-    min-width: auto;
+  .horario-grid {
+    font-size: 11px;
+    grid-template-columns: 80px repeat(5, 1fr);
+    grid-template-rows: auto repeat(24, 35px);
+  }
+  
+  .grid-header {
+    padding: 8px 4px;
     font-size: 12px;
   }
   
-  .horario-tabla th, .horario-tabla td {
-    min-width: 80px;
+  .grid-hora {
+    padding: 4px 2px;
+    font-size: 10px;
   }
   
-  .bloque-clase {
-    font-size: 11px;
+  .grid-clase {
     padding: 4px 2px;
+    margin: 1px;
+  }
+  
+  .materia-nombre {
+    font-size: 11px;
+  }
+  
+  .materia-horario {
+    font-size: 9px;
+  }
+  
+  .materia-comentario {
+    font-size: 8px;
   }
   
   .open-modal-btn {
