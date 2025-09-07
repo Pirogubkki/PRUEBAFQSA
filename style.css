@@ -34,10 +34,15 @@ body {
   align-items: center;
   margin: 20px 10px 20px 32px;
 }
-.leyenda-item { display: flex; align-items: center; gap: 6px; }
+.leyenda-item { 
+  display: flex; 
+  align-items: center; 
+  gap: 6px; 
+}
 .cuadro {
   display: inline-block;
-  width: 22px; height: 22px;
+  width: 22px; 
+  height: 22px;
   border-radius: 4px;
   border: 1px solid #aaa;
 }
@@ -65,6 +70,11 @@ body {
   color: #2d4b2e;
   cursor: pointer;
   font-size: 16px;
+  transition: all 0.2s ease;
+}
+.submenu-salones button:hover,
+#button-bar button:hover {
+  background: #e8f5e8;
 }
 .submenu-salones button.active,
 #button-bar button.active {
@@ -83,103 +93,206 @@ body {
   margin: 24px auto 0 auto;
   background: #fafaf8;
   border-radius: 12px;
-  box-shadow: 0 2px 12px #0001;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
   font-size: 16px;
   overflow: hidden;
 }
+
 .horario-tabla th, .horario-tabla td {
   border: 1px solid #b3d4be;
   text-align: center;
   padding: 0;
   position: relative;
+  vertical-align: middle;
 }
+
 .horario-tabla th {
   background: #8cc38a;
   color: #fff;
   font-weight: bold;
-  height: 36px;
+  height: 40px;
   letter-spacing: 1px;
+  padding: 8px;
 }
+
 .horario-tabla td {
   min-width: 120px;
-  height: 34px;
+  height: 30px;
   background: #fff;
+  padding: 2px;
+}
+
+.horario-tabla td:first-child {
+  background: #f8f8f8;
+  font-weight: 500;
+  color: #666;
+  min-width: 100px;
+  font-size: 14px;
 }
 
 .bloque-clase {
-  background: rgba(140, 195, 138, 0.28);
+  background: rgba(140, 195, 138, 0.3);
   border: 2px solid #8cc38a;
-  color: #2d4b2e;
-  border-radius: 10px;
-  font-size: 15px;
-  font-weight: 500;
-  padding: 10px 3px;
+  color: #1e3d24;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 4px;
   box-sizing: border-box;
   height: 100%;
+  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
   cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  line-height: 1.2;
 }
+
+.bloque-clase:hover {
+  background: rgba(140, 195, 138, 0.4);
+  transform: scale(1.02);
+}
+
 .bloque-clase.extraordinaria {
-  background: rgba(240, 90, 170, 0.16);
+  background: rgba(240, 90, 170, 0.2);
   border-color: #f05aaa;
   color: #7c325e;
+}
+
+.bloque-clase.extraordinaria:hover {
+  background: rgba(240, 90, 170, 0.3);
+}
+
+.bloque-clase b {
+  display: block;
+  margin-bottom: 4px;
 }
 
 .modal-bg {
   position: fixed;
-  top: 0; left: 0; right:0; bottom:0;
+  top: 0; 
+  left: 0; 
+  right: 0; 
+  bottom: 0;
   display: none;
-  background: rgba(0,0,0,0.14);
+  background: rgba(0,0,0,0.4);
   z-index: 1000;
   justify-content: center;
   align-items: center;
 }
+
 .modal-bg.active {
   display: flex;
 }
+
 .modal-solicitud {
   background: #fff;
   border-radius: 14px;
-  box-shadow: 0 8px 32px #0002;
-  padding: 18px 22px 18px 22px;
-  max-width: 290px;
-  width: 95vw;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  padding: 24px;
+  max-width: 320px;
+  width: 90vw;
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 15px;
 }
+
+.modal-solicitud h2 {
+  margin: 0;
+  color: #2d4b2e;
+  text-align: center;
+}
+
+.modal-solicitud form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-solicitud label {
+  color: #2d4b2e;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.modal-solicitud input {
+  padding: 10px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+}
+
+.modal-solicitud input:focus {
+  outline: none;
+  border-color: #8cc38a;
+}
+
+.modal-solicitud button[type="submit"] {
+  background: #8cc38a;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.modal-solicitud button[type="submit"]:hover {
+  background: #7ab378;
+}
+
 .close-modal-btn {
   position: absolute;
-  right: 9px;
-  top: 9px;
-  font-size: 1.3em;
+  right: 12px;
+  top: 12px;
+  font-size: 1.5em;
   background: none;
   border: none;
   color: #8cc38a;
   cursor: pointer;
+  padding: 4px;
+  line-height: 1;
 }
 
+.close-modal-btn:hover {
+  color: #7ab378;
+}
 
-.bloque-clase {
-  background: rgba(140, 195, 138, 0.28);
-  border: 2px solid #8cc38a;
-  color: #1e3d24;
-  border-radius: 10px;
-  font-size: 15px;
-  font-weight: bold;
-  padding: 7px 3px;
-  box-sizing: border-box;
-  height: 100%;
-  min-width: 85px;
-  vertical-align: middle;
+#my-form-status {
+  margin: 8px 0 0 0;
   text-align: center;
-}
-.bloque-clase.extraordinaria {
-  background: rgba(240, 90, 170, 0.16);
-  border-color: #f05aaa;
-  color: #7c325e;
+  font-weight: 600;
 }
 
+/* Responsive */
+@media (max-width: 768px) {
+  .horario-tabla {
+    min-width: auto;
+    font-size: 12px;
+  }
+  
+  .horario-tabla th, .horario-tabla td {
+    min-width: 80px;
+  }
+  
+  .bloque-clase {
+    font-size: 11px;
+    padding: 4px 2px;
+  }
+  
+  .open-modal-btn {
+    position: relative;
+    top: auto;
+    right: auto;
+    margin: 10px;
+    display: block;
+    width: fit-content;
+  }
+}
