@@ -1,4 +1,4 @@
-const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
+const dias = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"];
 const horaInicio = 8, horaFin = 20;
 
 // Generar intervalos de 30 minutos
