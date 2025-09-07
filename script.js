@@ -4,16 +4,16 @@ const horas = Array.from({length:13}, (_,i)=>8+i);
 let horariosJSON = {};
 let activeButton = null;
 
-// Usa tu URL de Google Sheet (con la pestaña "1"):
+// Usa la URL de tu hoja (pestaña "1"):
 const SHEET_URL = "https://opensheet.elk.sh/1J8gZdT3VF1DJZ37kxTo8LRw7-2VOFfFSDc5Iu2YFVWQ/1";
 
-// Esta función agrupa las filas por salón y día
+// Convierte el array plano del spreadsheet a objeto anidado por salón y día
 function agrupaHorariosPorSalon(rows) {
   const resultado = {};
   rows.forEach(row => {
-    // Ajusta aquí los nombres EXACTOS según tu hoja de cálculo
-    const salon = row["Salon"] || row["Salón"] || row["salon"];
-    const dia = row["Dia"] || row["día"] || row["dia"];
+    // Repara codificación de caracteres especiales
+    const salon = (row["Salon"] || row["Salón"] || row["salon"] || "").normalize("NFC");
+    const dia = (row["Dia"] || row["día"] || row["dia"] || "").normalize("NFC");
     if (!salon || !dia) return;
     if (!resultado[salon]) {
       resultado[salon] = {capacidad: row["capacidad"] ? Number(row["capacidad"]) : undefined};
@@ -21,9 +21,9 @@ function agrupaHorariosPorSalon(rows) {
     }
     if (dias.includes(dia)) {
       resultado[salon][dia].push({
-        materia: row["Materia"] || row["materia"],
-        inicio: row["Inicio"] || row["inicio"],
-        fin: row["Fin"] || row["fin"],
+        materia: (row["Materia"] || row["materia"] || "").normalize("NFC"),
+        inicio: (row["Inicio"] || row["inicio"] || ""),
+        fin: (row["Fin"] || row["fin"] || ""),
         tipo: row["tipo"] || "",
         comentario: row["comentario"] || ""
       });
@@ -35,7 +35,6 @@ function agrupaHorariosPorSalon(rows) {
 function renderAllButtons(horarios) {
   const bar = document.getElementById('button-bar');
   bar.innerHTML = "";
-
   Object.keys(horarios).forEach(nombre => {
     const btn = document.createElement('button');
     btn.textContent = nombre;
