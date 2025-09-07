@@ -1,5 +1,12 @@
-const dias = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"];
+const dias = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"]; // <-- Recuerda el cambio por Miercoles sin tilde
 const horaInicio = 8, horaFin = 20;
+
+// Orden personalizado para los botones
+const ordenSalones = [
+  "Salon 1", "Salon 2", "Salon 3", "Salon 4", "Salon 5", "Salon 6", "Salon 7", "Salon 8", "Salon 9", "Salon 10", "Salon 11", "Salon 12",
+  "Laboratorio 1", "Laboratorio 2", "Laboratorio 3", "Laboratorio 4",
+  "Salon De Usos Multiples"
+];
 
 // Generar intervalos de 30 minutos
 const intervalos = [];
@@ -18,7 +25,11 @@ const SHEET_URL = "https://opensheet.elk.sh/1J8gZdT3VF1DJZ37kxTo8LRw7-2VOFfFSDc5
 function normalizaDia(str) {
   if (!str) return "";
   str = str.toLowerCase()
-    .replace(/[áà]/g,'a').replace(/[éè]/g,'e').replace(/[íì]/g,'i').replace(/[óò]/g,'o').replace(/[úù]/g,'u');
+    .replace(/[áà]/g,'a')
+    .replace(/[éè]/g,'e')
+    .replace(/[íì]/g,'i')
+    .replace(/[óò]/g,'o')
+    .replace(/[úù]/g,'u');
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
@@ -108,14 +119,26 @@ function agrupaHorariosPorSalon(rows) {
   return resultado;
 }
 
+// ORDEN PERSONALIZADO DE BOTONES
 function renderAllButtons(horarios) {
   const bar = document.getElementById('button-bar') || document.getElementById('submenu-salones');
   bar.innerHTML = "";
-  Object.keys(horarios).sort().forEach(nombre => {
-    const btn = document.createElement('button');
-    btn.textContent = nombre;
-    btn.onclick = () => showSchedule(nombre, btn);
-    bar.appendChild(btn);
+  ordenSalones.forEach(nombre => {
+    if (horarios[nombre]) {
+      const btn = document.createElement('button');
+      btn.textContent = nombre;
+      btn.onclick = () => showSchedule(nombre, btn);
+      bar.appendChild(btn);
+    }
+  });
+  // Si hay algún salón/laboratorio fuera del orden definido, los agregamos al final
+  Object.keys(horarios).forEach(nombre => {
+    if (!ordenSalones.includes(nombre)) {
+      const btn = document.createElement('button');
+      btn.textContent = nombre;
+      btn.onclick = () => showSchedule(nombre, btn);
+      bar.appendChild(btn);
+    }
   });
 }
 
@@ -356,7 +379,7 @@ fetch(SHEET_URL)
     } else {
       renderAllButtons(horariosJSON);
       // Mostrar el primer salón por defecto
-      const primerSalon = Object.keys(horariosJSON)[0];
+      const primerSalon = ordenSalones.find(nombre => horariosJSON[nombre]) || Object.keys(horariosJSON)[0];
       if (primerSalon) {
         const primerBoton = document.querySelector('#button-bar button, .submenu-salones button');
         if (primerBoton) {
