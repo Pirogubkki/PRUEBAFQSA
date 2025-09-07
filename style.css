@@ -1,0 +1,218 @@
+
+body {
+  font-family: "Varela Round", sans-serif;
+  margin: 0;
+  background: #fcfcfb;
+}
+
+.main-header {
+  text-align: center;
+  margin-top: 18px;
+  margin-bottom: 6px;
+}
+.main-header h1 {
+  font-size: 2em;
+  font-weight: italic;
+  color: #2d4b2e;
+}
+
+.open-sidebar-btn {
+  position: absolute;
+  top: 28px;
+  right: 38px;
+  left: unset;
+  background: #8cc38a;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  z-index: 1100;
+  font-size: 1em;
+}
+
+.sidebar {
+  display: none;
+  position: fixed;
+  top: 0; right: 0;
+  width: 300px; height: 100%;
+  background: #f5f5f5;
+  box-shadow: -2px 0 10px rgba(0,0,0,0.2);
+  padding: 30px 20px 20px 20px;
+  z-index: 1000;
+  overflow-y: auto;
+}
+.sidebar.active { display: block; }
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5em;
+  position: absolute; right: 10px; top: 10px;
+  cursor: pointer;
+}
+
+.leyenda {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  margin: 20px 10px 20px 32px;
+}
+.leyenda-item { display: flex; align-items: center; gap: 6px; }
+.cuadro {
+  display: inline-block;
+  width: 22px; height: 22px;
+  border-radius: 4px;
+  border: 1px solid #aaa;
+}
+.cuadro.verde {
+  background: rgba(140, 195, 138, 0.7);
+}
+.cuadro.rosa {
+  background: rgba(240, 90, 170, 0.7);
+}
+
+.tabs {
+  margin-top: 20px;
+  margin-left: 16px;
+}
+.tabs button {
+  padding: 8px 18px;
+  border: none;
+  background: #eee;
+  color: #333;
+  cursor: pointer;
+  border-radius: 6px 6px 0 0;
+  margin-right: 4px;
+  font-size: 17px;
+}
+.tabs button.active {
+  background: #8cc38a;
+  color: white;
+}
+.submenu-salones {
+  margin: 18px 0;
+  padding-left: 12px;
+  flex-wrap: wrap;
+  display: flex;
+  gap: 7px;
+}
+.submenu-salones button {
+  margin-bottom: 7px;
+  padding: 7px 18px;
+  border-radius: 6px;
+  border: 1px solid #8cc38a;
+  background: #f5fff6;
+  color: #2d4b2e;
+  cursor: pointer;
+  font-size: 16px;
+}
+.submenu-salones button.active {
+  background: #8cc38a;
+  color: white;
+}
+
+.horario-tabla {
+  overflow-x: auto;
+  margin: 0 16px 32px 16px;
+  background: #fafaf8;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px #0001;
+  padding: 18px 0;
+}
+.horario-tabla table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 900px;
+  table-layout: fixed;
+}
+.horario-tabla th, .horario-tabla td {
+  border: 1px solid #d5e5d5;
+  padding: 0;
+  text-align: center;
+  font-size: 15px;
+  position: relative;
+}
+.horario-tabla th {
+  background: #8cc38a;
+  color: #fff;
+  font-weight: italic;
+  height: 36px;
+  letter-spacing: 1px;
+}
+.horario-tabla td {
+  min-width: 95px;
+  height: 36px;
+  background: #fff;
+}
+
+/* Bloques de clase en horario */
+.bloque-clase {
+  position: absolute;
+  left: 2px; right: 2px; top: 2px; bottom: 2px;
+  background: rgba(140, 195, 138, 0.3);
+  border: 1.5px solid #8cc38a;
+  border-radius: 8px;
+  color: #2d4b2e;
+  z-index: 2;
+  font-size: 14px;
+  padding: 2px 2px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.bloque-clase.extraordinaria {
+  background: rgba(240, 90, 170, 0.3);
+  border-color: #f05aaa;
+  color: #7c325e;
+}
+
+
+
+
+.open-modal-btn {
+  position: absolute;
+  top: 22px;
+  right: 38px;
+  background: #8cc38a;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 1em;
+}
+.modal-bg {
+  position: fixed;
+  top: 0; left: 0; right:0; bottom:0;
+  display: none;
+  background: rgba(0,0,0,0.14);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+.modal-bg.active {
+  display: flex;
+}
+.modal-solicitud {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 8px 32px #0002;
+  padding: 18px 22px 18px 22px;
+  max-width: 290px;
+  width: 95vw;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.close-modal-btn {
+  position: absolute;
+  right: 9px;
+  top: 9px;
+  font-size: 1.3em;
+  background: none;
+  border: none;
+  color: #8cc38a;
+  cursor: pointer;
+}

@@ -1,0 +1,375 @@
+{
+  "Salón 1": {
+    "Lunes": [
+      { "materia": "Matemáticas para químicos", "inicio": "08:00", "fin": "10:00" },
+      { "materia": "Normatividad y legislación", "inicio": "10:00", "fin": "11:30" },
+      { "materia": "Química bioorgánica", "inicio": "15:00", "fin": "16:30" },
+      { "materia": "Biología celular y molecular", "inicio": "16:30", "fin": "18:00" }
+  ],
+    "Martes": [
+      { "materia": "Física e introducción a la fisicoquímica", "inicio": "08:00", "fin": "10:00" },
+      { "materia": "Química general y bioinorgánica", "inicio": "10:30", "fin": "12:30" },
+      { "materia": "Química ambiental", "inicio": "13:30", "fin": "15:00" },
+      { "materia": "Administración y gestión en ciencias de la salud", "inicio": "16:30", "fin": "18:30" }
+    ],
+    "Miércoles": [
+      { "materia": "Contexto de la profesión", "inicio": "08:00", "fin": "10:00" },
+      { "materia": "Química bioorgánica", "inicio": "15:00", "fin": "16:30" },
+      { "materia": "Análisis químico", "inicio": "16:30", "fin": "18:30" }
+    ],
+    "Jueves": [
+      { "materia": "Matemáticas para químicos", "inicio": "08:00", "fin": "10:00" },
+      { "materia": "Normatividad y legislación", "inicio": "10:00", "fin": "11:30" },
+      { "materia": "Química ambiental", "inicio": "13:30", "fin": "15:00" },
+      { "materia": "Biología celular y molecular", "inicio": "15:00", "fin": "16:30" },
+      { "materia": "Administración y gestión en ciencias de la salud", "inicio": "16:30", "fin": "18:30" }
+    ],
+    "Viernes": [
+      { "materia": "Física e introducción a la fisicoquímica", "inicio": "08:00", "fin": "10:00" },
+      { "materia": "Química general y bioinorgánica", "inicio": "10:30", "fin": "12:30" },
+      { "materia": "Análisis químico", "inicio": "16:00", "fin": "18:30" }
+    ]
+  },
+  "Salón 2": {
+    "Lunes": [
+      { "materia": "Toxicología", "inicio": "09:30", "fin": "11:30" },
+      { "materia": "Síntesis de Fármacos", "inicio": "12:00", "fin": "13:30" },
+      { "materia": "Laboratorio de hematología Clínica", "inicio": "15:00", "fin": "18:00" }
+    ],
+    "Martes": [
+      { "materia": "Parasitología", "inicio": "11:00", "fin": "12:30" }
+    ],
+    "Miércoles": [
+      { "materia": "Síntesis de Fármacos", "inicio": "12:00", "fin": "13:30" },
+      { "materia": "Laboratorio de hematología Clínica", "inicio": "15:00", "fin": "18:00" }
+    ],
+    "Jueves": [
+      { "materia": "Parasitología", "inicio": "11:00", "fin": "12:30" }
+    ],
+    "Viernes": []
+  },
+  "Salón 3": {
+    "Lunes": [],
+    "Martes": [
+      { "materia": "Micología y virología", "inicio": "10:00", "fin": "11:30" },
+      { "materia": "Introducción al diseño de experimentos", "inicio": "12:00", "fin": "13:30" }
+    ],
+    "Miércoles": [
+      { "materia": "Lenguaje de señas", "inicio": "15:00", "fin": "17:00" }
+    ],
+    "Jueves": [
+      { "materia": "Introducción al diseño de experimentos", "inicio": "12:00", "fin": "13:30" }
+    ],
+    "Viernes": []
+  },
+  "Salón 4": {
+    "Lunes": [
+      { "materia": "Física e introducción a la fisicoquímica", "inicio": "08:00", "fin": "10:00" },
+      { "materia": "Normatividad y legislación", "inicio": "10:00", "fin": "11:30" },
+      { "materia": "Análisis químico", "inicio": "14:00", "fin": "16:30" },
+      { "materia": "Administración y gestión en ciencias de la salud", "inicio": "16:30", "fin": "18:30" }
+    ],
+    "Martes": [],
+    "Miércoles": [
+      { "materia": "Física e introducción a la fisicoquímica", "inicio": "08:00", "fin": "10:00" },
+      { "materia": "Química general y bioinorgánica", "inicio": "10:30", "fin": "12:30" },
+      { "materia": "Química bioorgánica", "inicio": "15:00", "fin": "16:30" },
+      { "materia": "Biología celular y molecular", "inicio": "16:30", "fin": "18:00" }
+    ],
+    "Jueves": [
+      { "materia": "Matemáticas para químicos", "inicio": "08:00", "fin": "10:00" },
+      { "materia": "Normatividad y legislación", "inicio": "10:00", "fin": "11:30" },
+      { "materia": "Análisis químico", "inicio": "14:00", "fin": "16:00" },
+      { "materia": "Biología celular y molecular", "inicio": "16:30", "fin": "18:00" },
+      { "materia": "Filosofía y metodología de las ciencias", "inicio": "18:00", "fin": "20:00" }
+    ],
+    "Viernes": [
+      { "materia": "Contexto de la profesión", "inicio": "08:00", "fin": "10:00" },
+      { "materia": "Química general y bioinorgánica", "inicio": "10:30", "fin": "12:30" },
+      { "materia": "Química bioorgánica", "inicio": "15:00", "fin": "16:30" }
+    ]
+  },
+  "Salón 5": {
+    "Lunes": [],
+    "Martes": [
+      { "materia": "Técnicas Básicas de Dibujo", "inicio": "10:00", "fin": "12:00" },
+      { "materia": "Elemental 2B", "inicio": "16:00", "fin": "17:30" }
+    ],
+    "Miércoles": [],
+    "Jueves": [
+      { "materia": "Elemental 2B", "inicio": "16:00", "fin": "17:30" }
+    ],
+    "Viernes": []
+  },
+  "Salón 6": {
+    "Lunes": [],
+    "Martes": [
+      { "materia": "Determinación estructural de compuestos orgánicos", "inicio": "10:30", "fin": "12:00" },
+      { "materia": "Quimiometría", "inicio": "14:00", "fin": "15:30" },
+      { "materia": "Bioprospección", "inicio": "16:30", "fin": "18:00" }
+    ],
+    "Miércoles": [],
+    "Jueves": [
+      { "materia": "Determinación estructural de compuestos orgánicos", "inicio": "10:30", "fin": "12:00" },
+      { "materia": "Quimiometría", "inicio": "14:00", "fin": "15:30" },
+      { "materia": "Bioprospección", "inicio": "16:30", "fin": "18:00" }
+    ],
+    "Viernes": []
+  },
+  "Salón 7": {
+    "Lunes": [
+      { "materia": "Física e introducción a la fisicoquímica", "inicio": "08:00", "fin": "10:00" },
+      { "materia": "Matemáticas para químicos", "inicio": "10:30", "fin": "12:30" },
+      { "materia": "Laboratorio de Química Clínica II", "inicio": "17:00", "fin": "20:00" }
+    ],
+    "Martes": [
+      { "materia": "Química general y bioinorgánica", "inicio": "08:00", "fin": "10:00" },
+      { "materia": "Contexto de la profesión", "inicio": "10:00", "fin": "12:00" },
+      { "materia": "Biología celular y molecular", "inicio": "15:00", "fin": "16:30" }
+    ],
+    "Miércoles": [
+      { "materia": "Física e introducción a la fisicoquímica", "inicio": "08:00", "fin": "10:00" },
+      { "materia": "Normatividad y legislación", "inicio": "10:30", "fin": "12:00" },
+      { "materia": "Análisis químico", "inicio": "14:00", "fin": "16:00" },
+      { "materia": "Administración y gestión en ciencias de la salud", "inicio": "16:00", "fin": "18:00" }
+    ],
+    "Jueves": [
+      { "materia": "Matemáticas para químicos", "inicio": "10:30", "fin": "12:30" },
+      { "materia": "Biología celular y molecular", "inicio": "16:00", "fin": "17:30" }
+    ],
+    "Viernes": [
+      { "materia": "Química general y bioinorgánica", "inicio": "08:00", "fin": "10:00" },
+      { "materia": "Normatividad y legislación", "inicio": "10:30", "fin": "12:00" },
+      { "materia": "Análisis químico", "inicio": "15:00", "fin": "17:30" }
+    ]
+  },
+  "Salón 8": {
+    "Lunes": [
+      { "materia": "Química general y bioinorgánica", "inicio": "08:00", "fin": "10:00" },
+      { "materia": "Normatividad y legislación", "inicio": "10:30", "fin": "12:00" },
+      { "materia": "Química bioorgánica", "inicio": "15:30", "fin": "17:00" },
+      { "materia": "Biología celular y molecular", "inicio": "17:00", "fin": "18:30" }
+    ],
+    "Martes": [
+      { "materia": "Matemáticas para químicos", "inicio": "08:00", "fin": "10:00" },
+      { "materia": "Física e introducción a la fisicoquímica", "inicio": "10:30", "fin": "12:30" },
+      { "materia": "Síntesis Orgánica", "inicio": "15:00", "fin": "18:00" },
+      { "materia": "Biología celular y molecular", "inicio": "17:00", "fin": "18:30" }
+    ],
+    "Miércoles": [
+      { "materia": "Química general y bioinorgánica", "inicio": "08:00", "fin": "10:00" },
+      { "materia": "Normatividad y legislación", "inicio": "10:30", "fin": "12:00" },
+      { "materia": "Química bioorgánica", "inicio": "15:30", "fin": "17:00" },
+      { "materia": "Laboratorio de Química Clínica II", "inicio": "17:00", "fin": "20:00" }
+    ],
+    "Jueves": [
+      { "materia": "Matemáticas para químicos", "inicio": "10:00", "fin": "12:00" },
+      { "materia": "Microbiología", "inicio": "12:00", "fin": "14:00" }
+    ],
+    "Viernes": [
+      { "materia": "Contexto de la profesión", "inicio": "08:00", "fin": "10:00" },
+      { "materia": "Física e introducción a la fisicoquímica", "inicio": "10:00", "fin": "12:00" }
+    ]
+  },
+  "Salón 9": {
+    "Lunes": [
+      { "materia": "Micología y virología", "inicio": "11:00", "fin": "12:30" }
+    ],
+    "Martes": [
+      { "materia": "Seguridad e higiene laboral", "inicio": "08:00", "fin": "10:00" },
+      { "materia": "Temas de matemáticas", "inicio": "10:00", "fin": "12:00" },
+      { "materia": "Análisis químico", "inicio": "14:00", "fin": "16:00" },
+      { "materia": "Servicio social", "inicio": "19:00", "fin": "20:00" }
+    ],
+    "Miércoles": [],
+    "Jueves": [
+      { "materia": "Química de compuestos aromáticos y heterocíclicos", "inicio": "08:00", "fin": "10:00" },
+      { "materia": "Temas de matemáticas", "inicio": "12:00", "fin": "14:00" },
+      { "materia": "Análisis químico", "inicio": "15:00", "fin": "17:30" }
+    ],
+    "Viernes": [
+      { "materia": "Micología y virología", "inicio": "14:30", "fin": "16:00" }
+    ]
+  },
+  "Salón 10": {
+    "Lunes": [
+      { "materia": "Matemáticas para químicos", "inicio": "08:00", "fin": "10:00" },
+      { "materia": "Química general y bioinorgánica", "inicio": "10:30", "fin": "12:30" },
+      { "materia": "Fisiología y patología humana", "inicio": "14:00", "fin": "16:00" },
+      { "materia": "Análisis instrumental", "inicio": "16:00", "fin": "18:30" }
+    ],
+    "Martes": [
+      { "materia": "Contexto de la profesión", "inicio": "08:00", "fin": "10:00" },
+      { "materia": "Física e introducción a la fisicoquímica", "inicio": "10:00", "fin": "12:00" },
+      { "materia": "Toxicología", "inicio": "12:30", "fin": "14:30" },
+      { "materia": "Farmacología básica", "inicio": "16:00", "fin": "17:30" },
+      { "materia": "Genética", "inicio": "17:30", "fin": "19:00" }
+    ],
+    "Miércoles": [
+      { "materia": "Matemáticas para químicos", "inicio": "08:00", "fin": "10:00" },
+      { "materia": "Normatividad y legislación", "inicio": "10:00", "fin": "11:30" }
+    ],
+    "Jueves": [
+      { "materia": "Química general y bioinorgánica", "inicio": "08:00", "fin": "10:00" },
+      { "materia": "Fotoquímica", "inicio": "12:00", "fin": "14:00" },
+      { "materia": "Fisiología y patología humana", "inicio": "14:00", "fin": "16:00" },
+      { "materia": "Análisis instrumental", "inicio": "16:00", "fin": "18:00" }
+    ],
+    "Viernes": [
+      { "materia": "Física e introducción a la fisicoquímica", "inicio": "08:00", "fin": "10:00" },
+      { "materia": "Normatividad y legislación", "inicio": "10:00", "fin": "11:30" },
+      { "materia": "Farmacología básica", "inicio": "15:00", "fin": "16:30" },
+      { "materia": "Genética", "inicio": "16:30", "fin": "18:00" }
+    ]
+  },
+  "Salón 11": {
+    "Lunes": [
+      { "materia": "Farmacología básica", "inicio": "15:00", "fin": "16:30" }
+    ],
+    "Martes": [
+      { "materia": "Química de productos naturales", "inicio": "12:00", "fin": "13:30" },
+      { "materia": "Química bioorgánica", "inicio": "17:00", "fin": "18:30" }
+    ],
+    "Miércoles": [
+      { "materia": "Farmacología básica", "inicio": "15:00", "fin": "16:30" }
+    ],
+    "Jueves": [
+      { "materia": "Química de productos naturales", "inicio": "12:00", "fin": "13:30" },
+      { "materia": "Química bioorgánica", "inicio": "17:30", "fin": "19:00" }
+    ],
+    "Viernes": [
+      { "materia": "Introducción a la lengua de señas mexicana grupo b", "inicio": "20:00", "fin": "22:00" }
+    ]
+  },
+  "Salón 12": {
+    "Lunes": [
+      { "materia": "Parasitología", "inicio": "09:00", "fin": "10:30" },
+      { "materia": "Micología y virología", "inicio": "12:30", "fin": "14:00" },
+      { "materia": "Farmacología básica", "inicio": "15:00", "fin": "16:30" },
+      { "materia": "Genética", "inicio": "16:30", "fin": "18:00" }
+    ],
+    "Martes": [
+      { "materia": "Inmunología", "inicio": "08:00", "fin": "09:30" },
+      { "materia": "Micología y virología", "inicio": "09:30", "fin": "11:00" },
+      { "materia": "Métodos de separación cromatográficos", "inicio": "12:00", "fin": "13:30" },
+      { "materia": "Análisis instrumental", "inicio": "14:00", "fin": "16:30" }
+    ],
+    "Miércoles": [
+      { "materia": "Inmunología", "inicio": "08:00", "fin": "09:30" },
+      { "materia": "Toxicología", "inicio": "10:30", "fin": "12:30" },
+      { "materia": "Fisiología y patología humana", "inicio": "14:00", "fin": "16:00" },
+      { "materia": "Análisis instrumental", "inicio": "16:30", "fin": "18:30" }
+    ],
+    "Jueves": [
+      { "materia": "Parasitología", "inicio": "09:00", "fin": "10:30" },
+      { "materia": "Métodos de separación cromatográficos", "inicio": "10:30", "fin": "12:30" },
+      { "materia": "Farmacología básica", "inicio": "15:00", "fin": "16:30" },
+      { "materia": "Genética", "inicio": "16:30", "fin": "18:00" },
+      { "materia": "Filosofía y metodología de las ciencias", "inicio": "18:00", "fin": "20:00" }
+    ],
+    "Viernes": [
+      { "materia": "Inmunología", "inicio": "09:00", "fin": "10:30" },
+      { "materia": "Inmunología", "inicio": "11:00", "fin": "12:30" },
+      { "materia": "Fisiología y patología humana", "inicio": "14:00", "fin": "16:00" },
+      { "materia": "Análisis instrumental", "inicio": "16:00", "fin": "18:30" }
+    ]
+  },
+  "Laboratorio 1": {
+    "Lunes": [
+      { "materia": "Laboratorio de análisis farmacéutico", "inicio": "08:00", "fin": "12:00" }
+    ],
+    "Martes": [
+      { "materia": "Laboratorio de análisis fisicoquímicos", "inicio": "15:00", "fin": "19:00" }
+    ],
+    "Miércoles": [
+      { "materia": "Laboratorio de análisis fisicoquímicos", "inicio": "15:00", "fin": "19:00" }
+    ],
+    "Jueves": [
+      { "materia": "Técnicas de laboratorio", "inicio": "08:00", "fin": "12:00" }
+    ],
+    "Viernes": []
+  },
+  "Laboratorio 2": {
+    "Lunes": [],
+    "Martes": [
+      { "materia": "Laboratorio de análisis farmacéutico", "inicio": "08:00", "fin": "12:00" }
+    ],
+    "Miércoles": [
+      { "materia": "Laboratorio de análisis farmacéutico", "inicio": "08:00", "fin": "12:00" }
+    ],
+    "Jueves": [
+      { "materia": "Química analítica Cuantitativa", "inicio": "08:00", "fin": "12:00" },
+      { "materia": "Síntesis Orgánica", "inicio": "15:00", "fin": "18:00" }
+    ],
+    "Viernes": []
+  },
+  "Laboratorio 3": {
+    "Lunes": [],
+    "Martes": [
+      { "materia": "Microbiología", "inicio": "08:00", "fin": "12:00" },
+      { "materia": "Laboratorio de análisis microbiológicos", "inicio": "12:00", "fin": "14:00" },
+      { "materia": "Laboratorio de hematología Clínica", "inicio": "15:00", "fin": "18:00" }
+    ],
+    "Miércoles": [
+      { "materia": "Laboratorio de análisis microbiológicos", "inicio": "08:00", "fin": "10:00" },
+      { "materia": "Laboratorio de análisis microbiológicos", "inicio": "10:00", "fin": "12:00" },
+      { "materia": "Laboratorio de análisis microbiológicos", "inicio": "12:00", "fin": "15:00" }
+    ],
+    "Jueves": [
+      { "materia": "Laboratorio de análisis microbiológicos", "inicio": "08:00", "fin": "11:00" },
+      { "materia": "Laboratorio de análisis microbiológicos", "inicio": "11:00", "fin": "14:00" },
+      { "materia": "Laboratorio de análisis microbiológicos", "inicio": "14:00", "fin": "17:00" }
+    ],
+    "Viernes": [
+      { "materia": "Laboratorio de análisis microbiológicos", "inicio": "08:00", "fin": "11:00" },
+      { "materia": "Laboratorio de análisis microbiológicos", "inicio": "11:30", "fin": "12:30" },
+      { "materia": "Laboratorio de hematología Clínica", "inicio": "14:00", "fin": "18:00" }
+    ]
+  },
+  "Laboratorio 4": {
+    "Lunes": [
+      { "materia": "Laboratorio de química biológica", "inicio": "15:00", "fin": "20:00" }
+    ],
+    "Martes": [
+      { "materia": "Laboratorio de química biológica", "inicio": "15:00", "fin": "20:00" }
+    ],
+    "Miércoles": [
+      { "materia": "Laboratorio de química biológica", "inicio": "08:00", "fin": "13:00" },
+      { "materia": "Laboratorio de química biológica", "inicio": "15:00", "fin": "20:00" }
+    ],
+    "Jueves": [
+      { "materia": "Laboratorio de Química Clínica II", "inicio": "17:00", "fin": "20:00" }
+    ],
+    "Viernes": [
+      { "materia": "Laboratorio de química biológica", "inicio": "15:00", "fin": "20:00" }
+      ]
+  },
+  "Usos Múltiples": {
+    "Lunes": [
+      { "materia": "Inmunología", "inicio": "08:00", "fin": "09:30" },
+      { "materia": "Toxicología", "inicio": "09:30", "fin": "11:30" },
+      { "materia": "Parasitología", "inicio": "11:30", "fin": "13:00" },
+      { "materia": "Genética", "inicio": "13:00", "fin": "14:30" },
+      { "materia": "Laboratorio de hematología Clínica", "inicio": "17:00", "fin": "20:00" }
+    ],
+    "Martes": [
+      { "materia": "Química de compuestos aromáticos y heterociclicos", "inicio": "08:00", "fin": "10:00" },
+      { "materia": "Electromagnetismo y óptica", "inicio": "10:00", "fin": "11:30" },
+      { "materia": "Química analítica cuantitativa", "inicio": "12:00", "fin": "14:00" },
+      { "materia": "Fisiología y patología humana", "inicio": "17:00", "fin": "19:00" }
+    ],
+    "Miércoles": [
+      { "materia": "Genética", "inicio": "13:00", "fin": "14:30" }
+    ],
+    "Jueves": [
+      { "materia": "Electromagnetismo y óptica", "inicio": "10:00", "fin": "11:30" },
+      { "materia": "Inmunología", "inicio": "11:30", "fin": "13:00" }
+    ],
+    "Viernes": [
+      { "materia": "Micología y virología", "inicio": "09:30", "fin": "11:00" },
+      { "materia": "Parasitología", "inicio": "11:00", "fin": "12:30" },
+      { "materia": "Análisis instrumental", "inicio": "15:00", "fin": "17:00" },
+      { "materia": "Fisiología y patología humana", "inicio": "17:00", "fin": "19:00" }
+    ]
+  }
+}
