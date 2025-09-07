@@ -137,7 +137,7 @@ body {
   border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
-  padding: 8px 4px;
+  padding: 6px 4px;
   box-sizing: border-box;
   height: 100%;
   width: 100%;
@@ -151,7 +151,13 @@ body {
   line-height: 1.2;
 }
 
-.bloque-clase:hover {
+.bloque-clase.semestral {
+  background: rgba(140, 195, 138, 0.25);
+  border-color: #8cc38a;
+  color: #1e3d24;
+}
+
+.bloque-clase.semestral:hover {
   background: rgba(140, 195, 138, 0.4);
   transform: scale(1.02);
 }
@@ -163,12 +169,35 @@ body {
 }
 
 .bloque-clase.extraordinaria:hover {
-  background: rgba(240, 90, 170, 0.3);
+  background: rgba(240, 90, 170, 0.35);
+  transform: scale(1.02);
 }
 
-.bloque-clase b {
-  display: block;
-  margin-bottom: 4px;
+.materia-nombre {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 3px;
+  line-height: 1.1;
+}
+
+.materia-horario {
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 2px;
+  opacity: 0.8;
+}
+
+.materia-comentario {
+  font-size: 10px;
+  font-style: italic;
+  opacity: 0.7;
+  margin-top: 2px;
+  line-height: 1.1;
+}
+
+.celda-vacia {
+  background: #fff;
+  min-height: 30px;
 }
 
 .modal-bg {
