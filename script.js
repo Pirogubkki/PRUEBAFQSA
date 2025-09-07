@@ -38,12 +38,20 @@ function normalizaHora(horaStr) {
   return parts.join(':');
 }
 
-// Función para calcular cuántos intervalos de 30 min hay entre dos horas
+// Función mejorada para calcular duración en intervalos
 function calcularDuracionEnIntervalos(inicio, fin) {
-  const inicioIdx = intervalos.findIndex(intervalo => intervalo.inicio === inicio);
+  let inicioIdx = -1;
   let finIdx = -1;
   
-  // Buscar el intervalo que termina a la hora especificada
+  // Buscar índice de inicio
+  for (let i = 0; i < intervalos.length; i++) {
+    if (intervalos[i].inicio === inicio) {
+      inicioIdx = i;
+      break;
+    }
+  }
+  
+  // Buscar índice de fin
   for (let i = 0; i < intervalos.length; i++) {
     if (intervalos[i].fin === fin) {
       finIdx = i;
@@ -51,12 +59,19 @@ function calcularDuracionEnIntervalos(inicio, fin) {
     }
   }
   
-  if (inicioIdx === -1 || finIdx === -1) {
-    console.warn(`No se pudo calcular duración para ${inicio} - ${fin}`);
+  if (inicioIdx === -1) {
+    console.warn(`No se encontró intervalo de inicio para: ${inicio}`);
     return 1;
   }
   
-  return finIdx - inicioIdx + 1;
+  if (finIdx === -1) {
+    console.warn(`No se encontró intervalo de fin para: ${fin}`);
+    return 1;
+  }
+  
+  const duracion = finIdx - inicioIdx + 1;
+  console.log(`Duración calculada para ${inicio} - ${fin}: ${duracion} intervalos`);
+  return duracion;
 }
 
 // Convierte array plano a formato por salón y día
@@ -73,13 +88,21 @@ function agrupaHorariosPorSalon(rows) {
     }
     
     if (dias.includes(dia)) {
-      resultado[salon][dia].push({
-        materia: (row["Materia"] || row["materia"] || "").trim(),
-        inicio: normalizaHora((row["Inicio"] || row["inicio"] || "").trim()),
-        fin: normalizaHora((row["Fin"] || row["fin"] || "").trim()),
-        tipo: (row["tipo"] || "").trim(),
-        comentario: (row["comentario"] || "").trim()
-      });
+      const inicio = normalizaHora((row["Inicio"] || row["inicio"] || "").trim());
+      const fin = normalizaHora((row["Fin"] || row["fin"] || "").trim());
+      
+      // Validar que las horas sean válidas
+      if (inicio && fin) {
+        resultado[salon][dia].push({
+          materia: (row["Materia"] || row["materia"] || "").trim(),
+          inicio: inicio,
+          fin: fin,
+          tipo: (row["tipo"] || "").trim(),
+          comentario: (row["comentario"] || "").trim()
+        });
+      } else {
+        console.warn(`Horario inválido para ${salon} - ${dia}:`, {inicio, fin});
+      }
     }
   });
   return resultado;
@@ -115,7 +138,7 @@ function convertirADatosEventos(nombre, horariosSalon) {
   return eventos;
 }
 
-// NUEVA FUNCIÓN USANDO CSS GRID
+// Función mejorada para renderizar el calendario con CSS Grid
 function renderCalendario(id, data, nombre) {
   const cont = document.getElementById(id);
   cont.innerHTML = "";
@@ -166,6 +189,9 @@ function renderCalendario(id, data, nombre) {
     gridContainer.appendChild(headerCell);
   });
 
+  // Crear un mapa para rastrear qué celdas están ocupadas
+  const celdasOcupadas = new Set();
+
   // Para cada intervalo de tiempo
   intervalos.forEach((intervalo, filaIdx) => {
     // Celda de hora
@@ -180,55 +206,111 @@ function renderCalendario(id, data, nombre) {
 
     // Para cada día
     dias.forEach((dia, diaIdx) => {
-      // Buscar si hay una clase que comience exactamente en este intervalo y día
-      const clase = data.find(ev => 
-        ev.dia === dia && ev.inicio === intervalo.inicio
-      );
+      const celdaKey = `${filaIdx}-${diaIdx}`;
+      
+      // Solo procesar si la celda no está ocupada
+      if (!celdasOcupadas.has(celdaKey)) {
+        // Buscar si hay una clase que comience exactamente en este intervalo y día
+        const clase = data.find(ev => 
+          ev.dia === dia && ev.inicio === intervalo.inicio
+        );
 
-      if (clase) {
-        // Calcular duración
-        const duracion = calcularDuracionEnIntervalos(clase.inicio, clase.fin);
-        
-        // Crear celda de clase
-        const claseCell = document.createElement("div");
-        
-        // Determinar clase CSS
-        let claseCSS = "grid-clase";
-        if (clase.tipo === "extraordinaria") {
-          claseCSS += " extraordinaria";
-        } else {
-          claseCSS += " semestral";
+        if (clase) {
+          // Calcular duración
+          const duracion = calcularDuracionEnIntervalos(clase.inicio, clase.fin);
+          
+          // Marcar todas las celdas ocupadas por esta clase
+          for (let i = 0; i < duracion; i++) {
+            celdasOcupadas.add(`${filaIdx + i}-${diaIdx}`);
+          }
+          
+          // Crear celda de clase
+          const claseCell = document.createElement("div");
+          
+          // Determinar clase CSS
+          let claseCSS = "grid-clase";
+          if (clase.tipo === "extraordinaria") {
+            claseCSS += " extraordinaria";
+          } else {
+            claseCSS += " semestral";
+          }
+          claseCell.className = claseCSS;
+          
+          // Posicionar en el grid
+          claseCell.style.cssText = `
+            grid-row: ${filaIdx + 2} / span ${duracion};
+            grid-column: ${diaIdx + 2};
+            background: ${clase.tipo === "extraordinaria" ? "rgba(240, 90, 170, 0.2)" : "rgba(140, 195, 138, 0.25)"};
+            border: 2px solid ${clase.tipo === "extraordinaria" ? "#f05aaa" : "#8cc38a"};
+            color: ${clase.tipo === "extraordinaria" ? "#7c325e" : "#1e3d24"};
+            border-radius: 8px;
+            padding: 6px 4px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.2;
+            cursor: pointer;
+            transition: all 0.2s ease;
+          `;
+          
+          // Hover effects
+          claseCell.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.02)';
+            this.style.background = clase.tipo === "extraordinaria" ? "rgba(240, 90, 170, 0.35)" : "rgba(140, 195, 138, 0.4)";
+          });
+          
+          claseCell.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+            this.style.background = clase.tipo === "extraordinaria" ? "rgba(240, 90, 170, 0.2)" : "rgba(140, 195, 138, 0.25)";
+          });
+          
+          // Contenido
+          const materiaDiv = document.createElement("div");
+          materiaDiv.className = "materia-nombre";
+          materiaDiv.textContent = clase.materia;
+          materiaDiv.style.cssText = `
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 3px;
+            line-height: 1.1;
+          `;
+          claseCell.appendChild(materiaDiv);
+          
+          const horarioDiv = document.createElement("div");
+          horarioDiv.className = "materia-horario";
+          horarioDiv.textContent = `${clase.inicio} - ${clase.fin}`;
+          horarioDiv.style.cssText = `
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 2px;
+            opacity: 0.8;
+          `;
+          claseCell.appendChild(horarioDiv);
+          
+          if (clase.comentario) {
+            const comentarioDiv = document.createElement("div");
+            comentarioDiv.className = "materia-comentario";
+            comentarioDiv.textContent = clase.comentario;
+            comentarioDiv.style.cssText = `
+              font-size: 10px;
+              font-style: italic;
+              opacity: 0.7;
+              margin-top: 2px;
+              line-height: 1.1;
+            `;
+            claseCell.appendChild(comentarioDiv);
+            claseCell.title = clase.comentario;
+          }
+          
+          gridContainer.appendChild(claseCell);
+          
+          console.log(`Clase añadida: ${clase.materia} en ${dia} de ${clase.inicio} a ${clase.fin}, fila ${filaIdx + 2}, span ${duracion}`);
         }
-        claseCell.className = claseCSS;
-        
-        // Posicionar en el grid
-        claseCell.style.cssText = `
-          grid-row: ${filaIdx + 2} / span ${duracion};
-          grid-column: ${diaIdx + 2};
-        `;
-        
-        // Contenido
-        const materiaDiv = document.createElement("div");
-        materiaDiv.className = "materia-nombre";
-        materiaDiv.textContent = clase.materia;
-        claseCell.appendChild(materiaDiv);
-        
-        const horarioDiv = document.createElement("div");
-        horarioDiv.className = "materia-horario";
-        horarioDiv.textContent = `${clase.inicio} - ${clase.fin}`;
-        claseCell.appendChild(horarioDiv);
-        
-        if (clase.comentario) {
-          const comentarioDiv = document.createElement("div");
-          comentarioDiv.className = "materia-comentario";
-          comentarioDiv.textContent = clase.comentario;
-          claseCell.appendChild(comentarioDiv);
-          claseCell.title = clase.comentario;
-        }
-        
-        gridContainer.appendChild(claseCell);
       }
-      // No necesitamos crear celdas vacías - CSS Grid las maneja automáticamente
     });
   });
 }
@@ -239,6 +321,8 @@ function showSchedule(nombre, btn) {
   activeButton = btn;
   
   const eventos = convertirADatosEventos(nombre, horariosJSON[nombre]);
+  console.log(`Mostrando horario para ${nombre}:`, eventos);
+  
   const contenedorId = document.getElementById('horario-espacio') ? 'horario-espacio' : 'horario-salon';
   renderCalendario(contenedorId, eventos, nombre);
 }
