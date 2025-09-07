@@ -161,3 +161,25 @@ body {
   color: #8cc38a;
   cursor: pointer;
 }
+
+
+.bloque-clase {
+  background: rgba(140, 195, 138, 0.28);
+  border: 2px solid #8cc38a;
+  color: #1e3d24;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: bold;
+  padding: 7px 3px;
+  box-sizing: border-box;
+  height: 100%;
+  min-width: 85px;
+  vertical-align: middle;
+  text-align: center;
+}
+.bloque-clase.extraordinaria {
+  background: rgba(240, 90, 170, 0.16);
+  border-color: #f05aaa;
+  color: #7c325e;
+}
+
