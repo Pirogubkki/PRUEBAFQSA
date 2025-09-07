@@ -1,4 +1,4 @@
-const dias = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"]; // <-- Recuerda el cambio por Miercoles sin tilde
+const dias = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"];
 const horaInicio = 8, horaFin = 20;
 
 // Orden personalizado para los botones
@@ -47,6 +47,11 @@ function normalizaHora(horaStr) {
     parts[0] = '0' + parts[0];
   }
   return parts.join(':');
+}
+
+// Normaliza nombres para comparación robusta
+function normalizaNombre(str) {
+  return str.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
 }
 
 // Función mejorada para calcular duración en intervalos
@@ -123,20 +128,30 @@ function agrupaHorariosPorSalon(rows) {
 function renderAllButtons(horarios) {
   const bar = document.getElementById('button-bar') || document.getElementById('submenu-salones');
   bar.innerHTML = "";
-  ordenSalones.forEach(nombre => {
-    if (horarios[nombre]) {
+
+  // Mapa de nombre normalizado a nombre real
+  const mapaNombreReal = {};
+  Object.keys(horarios).forEach(n => {
+    mapaNombreReal[normalizaNombre(n)] = n;
+  });
+
+  // Primero en el orden deseado
+  ordenSalones.forEach(n => {
+    const nNorm = normalizaNombre(n);
+    if (mapaNombreReal[nNorm]) {
       const btn = document.createElement('button');
-      btn.textContent = nombre;
-      btn.onclick = () => showSchedule(nombre, btn);
+      btn.textContent = mapaNombreReal[nNorm];
+      btn.onclick = () => showSchedule(mapaNombreReal[nNorm], btn);
       bar.appendChild(btn);
     }
   });
-  // Si hay algún salón/laboratorio fuera del orden definido, los agregamos al final
-  Object.keys(horarios).forEach(nombre => {
-    if (!ordenSalones.includes(nombre)) {
+
+  // Luego, los que no están en el orden personalizado
+  Object.keys(horarios).forEach(n => {
+    if (!ordenSalones.map(normalizaNombre).includes(normalizaNombre(n))) {
       const btn = document.createElement('button');
-      btn.textContent = nombre;
-      btn.onclick = () => showSchedule(nombre, btn);
+      btn.textContent = n;
+      btn.onclick = () => showSchedule(n, btn);
       bar.appendChild(btn);
     }
   });
@@ -379,11 +394,16 @@ fetch(SHEET_URL)
     } else {
       renderAllButtons(horariosJSON);
       // Mostrar el primer salón por defecto
-      const primerSalon = ordenSalones.find(nombre => horariosJSON[nombre]) || Object.keys(horariosJSON)[0];
-      if (primerSalon) {
+      const primerSalon = ordenSalones.map(normalizaNombre).find(nombreNorm =>
+        Object.keys(horariosJSON).map(normalizaNombre).includes(nombreNorm)
+      );
+      let nombreReal = primerSalon
+        ? Object.keys(horariosJSON).find(n => normalizaNombre(n) === primerSalon)
+        : Object.keys(horariosJSON)[0];
+      if (nombreReal) {
         const primerBoton = document.querySelector('#button-bar button, .submenu-salones button');
         if (primerBoton) {
-          showSchedule(primerSalon, primerBoton);
+          showSchedule(nombreReal, primerBoton);
         }
       }
     }
