@@ -122,12 +122,13 @@ body {
   padding: 2px;
 }
 
-.horario-tabla td:first-child {
-  background: #f8f8f8;
+.celda-hora {
+  background: #f8f8f8 !important;
   font-weight: 500;
   color: #666;
   min-width: 100px;
   font-size: 14px;
+  padding: 8px 4px !important;
 }
 
 .bloque-clase {
