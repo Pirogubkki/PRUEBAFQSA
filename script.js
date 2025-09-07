@@ -1,5 +1,7 @@
 const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
 const horaInicio = 8, horaFin = 20;
+
+// Generar intervalos de 30 minutos
 const intervalos = [];
 for (let h = horaInicio; h < horaFin; h++) {
   intervalos.push({inicio:`${String(h).padStart(2,'0')}:00`, fin:`${String(h).padStart(2,'0')}:30`});
@@ -16,9 +18,10 @@ const SHEET_URL = "https://opensheet.elk.sh/1J8gZdT3VF1DJZ37kxTo8LRw7-2VOFfFSDc5
 function normalizaDia(str) {
   if (!str) return "";
   str = str.toLowerCase()
-    .replace(/[á]/g,'a').replace(/[é]/g,'e').replace(/[í]/g,'i').replace(/[ó]/g,'o').replace(/[ú]/g,'u');
+    .replace(/[áà]/g,'a').replace(/[éè]/g,'e').replace(/[íì]/g,'i').replace(/[óò]/g,'o').replace(/[úù]/g,'u');
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
 function normalizaSalon(str) {
   if (!str) return "";
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, "").replace(/\b([a-z])/g, l => l.toUpperCase());
@@ -35,6 +38,15 @@ function normalizaHora(horaStr) {
   return parts.join(':');
 }
 
+// Función para calcular cuántos intervalos de 30 min hay entre dos horas
+function calcularDuracionEnIntervalos(inicio, fin) {
+  const inicioIdx = intervalos.findIndex(intervalo => intervalo.inicio === inicio);
+  const finIdx = intervalos.findIndex(intervalo => intervalo.fin === fin);
+  
+  if (inicioIdx === -1 || finIdx === -1) return 1;
+  return finIdx - inicioIdx + 1;
+}
+
 // Convierte array plano a formato por salón y día
 function agrupaHorariosPorSalon(rows) {
   const resultado = {};
@@ -42,10 +54,12 @@ function agrupaHorariosPorSalon(rows) {
     const salon = normalizaSalon((row["Salon"] || row["Salón"] || row["salon"] || "").trim());
     const dia = normalizaDia((row["Dia"] || row["día"] || row["dia"] || "").trim());
     if (!salon || !dia) return;
+    
     if (!resultado[salon]) {
       resultado[salon] = {capacidad: row["capacidad"] ? Number(row["capacidad"]) : undefined};
       dias.forEach(d => resultado[salon][d] = []);
     }
+    
     if (dias.includes(dia)) {
       resultado[salon][dia].push({
         materia: (row["Materia"] || row["materia"] || "").trim(),
@@ -62,7 +76,7 @@ function agrupaHorariosPorSalon(rows) {
 function renderAllButtons(horarios) {
   const bar = document.getElementById('button-bar') || document.getElementById('submenu-salones');
   bar.innerHTML = "";
-  Object.keys(horarios).forEach(nombre => {
+  Object.keys(horarios).sort().forEach(nombre => {
     const btn = document.createElement('button');
     btn.textContent = nombre;
     btn.onclick = () => showSchedule(nombre, btn);
@@ -89,7 +103,7 @@ function convertirADatosEventos(nombre, horariosSalon) {
   return eventos;
 }
 
-// Función renderCalendario tipo horario tabla
+// Función renderCalendario tipo horario tabla - CORREGIDA
 function renderCalendario(id, data, nombre) {
   const cont = document.getElementById(id);
   cont.innerHTML = "";
@@ -99,15 +113,12 @@ function renderCalendario(id, data, nombre) {
   const tit = document.createElement("h2");
   tit.textContent = nombre;
   cont.appendChild(tit);
-  if (horariosJSON[nombre] && horariosJSON[nombre].capacidad)
-    cont.innerHTML += `<div style="font-size:15px; color:#388;">Capacidad: ${horariosJSON[nombre].capacidad} alumnos</div>`;
-
-  // Definir intervalos de media hora
-  const horaInicio = 8, horaFin = 20;
-  const intervalos = [];
-  for (let h = horaInicio; h < horaFin; h++) {
-    intervalos.push({inicio:`${String(h).padStart(2,'0')}:00`, fin:`${String(h).padStart(2,'0')}:30`});
-    intervalos.push({inicio:`${String(h).padStart(2,'0')}:30`, fin:`${String(h+1).padStart(2,'0')}:00`});
+  
+  if (horariosJSON[nombre] && horariosJSON[nombre].capacidad) {
+    const capacidadDiv = document.createElement("div");
+    capacidadDiv.style.cssText = "font-size:15px; color:#388; margin-bottom: 10px;";
+    capacidadDiv.textContent = `Capacidad: ${horariosJSON[nombre].capacidad} alumnos`;
+    cont.appendChild(capacidadDiv);
   }
 
   // Crear tabla
@@ -123,85 +134,116 @@ function renderCalendario(id, data, nombre) {
   thead.appendChild(trh);
   tabla.appendChild(thead);
 
-  // Matriz de ocupación
-  const ocupadas = Array.from({length:intervalos.length}, ()=>dias.map(()=>false));
+  // Matriz para rastrear celdas ocupadas [fila][columna]
+  const celdasOcupadas = Array(intervalos.length).fill(null).map(() => Array(dias.length).fill(false));
 
-  // Cuerpo
+  // Cuerpo de la tabla
   const tbody = document.createElement("tbody");
   tabla.appendChild(tbody);
 
-  for (let fila = 0; fila < intervalos.length; fila++) {
-    const {inicio,fin} = intervalos[fila];
+  // Procesar cada fila de intervalos
+  for (let filaIdx = 0; filaIdx < intervalos.length; filaIdx++) {
+    const intervalo = intervalos[filaIdx];
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${inicio} - ${fin}</td>`;
+    
+    // Celda de hora
+    const tdHora = document.createElement("td");
+    tdHora.textContent = `${intervalo.inicio} - ${intervalo.fin}`;
+    tr.appendChild(tdHora);
 
-    for (let colDia = 0; colDia < dias.length; colDia++) {
-      if (ocupadas[fila][colDia]) continue;
+    // Procesar cada día
+    for (let diaIdx = 0; diaIdx < dias.length; diaIdx++) {
+      const dia = dias[diaIdx];
+      
+      // Si la celda ya está ocupada por una clase anterior, no crear nueva celda
+      if (celdasOcupadas[filaIdx][diaIdx]) {
+        continue;
+      }
 
-      const dia = dias[colDia];
-      const clase = data.find(ev => ev.dia === dia && ev.inicio === inicio);
+      // Buscar si hay una clase que comience en este intervalo y día
+      const clase = data.find(ev => 
+        ev.dia === dia && ev.inicio === intervalo.inicio
+      );
 
-      if(clase) {
-        // Calcular duración
-        let duracion = 1;
-        let t = inicio;
-        while(true) {
-          const [h,m] = t.split(":").map(Number);
-          let next = (m === 0) ? `${String(h).padStart(2,'0')}:30` : `${String(h+1).padStart(2,'0')}:00`;
-          if(next === clase.fin) break;
-          duracion++;
-          t = next;
+      if (clase) {
+        // Calcular duración en intervalos
+        const duracion = calcularDuracionEnIntervalos(clase.inicio, clase.fin);
+        
+        // Marcar celdas como ocupadas
+        for (let i = 0; i < duracion && (filaIdx + i) < intervalos.length; i++) {
+          celdasOcupadas[filaIdx + i][diaIdx] = true;
         }
-        // Marcar ocupadas SOLO desde la segunda fila
-        for(let k=1;k<duracion;k++) if(fila+k<ocupadas.length) ocupadas[fila+k][colDia]=true;
 
-        // Crear celda clase
+        // Crear celda de clase
         const td = document.createElement("td");
         td.rowSpan = duracion;
         td.className = "bloque-clase" + (clase.tipo === "extraordinaria" ? " extraordinaria" : "");
-        td.innerHTML = `<b>${clase.materia}</b><br><span style="font-size:13px">${clase.inicio} - ${clase.fin}</span>`;
-        if(clase.comentario) td.title = clase.comentario;
+        
+        const materiaDiv = document.createElement("div");
+        materiaDiv.innerHTML = `<b>${clase.materia}</b>`;
+        td.appendChild(materiaDiv);
+        
+        const horarioDiv = document.createElement("div");
+        horarioDiv.style.fontSize = "13px";
+        horarioDiv.textContent = `${clase.inicio} - ${clase.fin}`;
+        td.appendChild(horarioDiv);
+        
+        if (clase.comentario) {
+          td.title = clase.comentario;
+        }
+        
         tr.appendChild(td);
       } else {
-        // Celda vacía solo si no está ocupada
-        tr.appendChild(document.createElement("td"));
+        // Crear celda vacía
+        const td = document.createElement("td");
+        tr.appendChild(td);
       }
     }
+    
     tbody.appendChild(tr);
   }
 }
 
 function showSchedule(nombre, btn) {
-  if(activeButton) activeButton.classList.remove('active');
+  if (activeButton) activeButton.classList.remove('active');
   btn.classList.add('active');
   activeButton = btn;
+  
   const eventos = convertirADatosEventos(nombre, horariosJSON[nombre]);
-  if(document.getElementById('horario-espacio')) {
-    renderCalendario('horario-espacio', eventos, nombre);
-  } else {
-    renderCalendario('horario-salon', eventos, nombre);
-  }
+  const contenedorId = document.getElementById('horario-espacio') ? 'horario-espacio' : 'horario-salon';
+  renderCalendario(contenedorId, eventos, nombre);
 }
 
 // --- Cargar datos desde Google Sheets ---
 fetch(SHEET_URL)
-  .then(r=>r.json())
-  .then(rows=>{
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(rows => {
+    console.log("Datos recibidos:", rows);
     horariosJSON = agrupaHorariosPorSalon(rows);
+    console.log("Horarios procesados:", horariosJSON);
+    
     if (Object.keys(horariosJSON).length === 0) {
-      if(document.getElementById('horario-espacio')) {
-        document.getElementById('horario-espacio').innerHTML = "<b>No hay horarios cargados.</b>";
-      } else {
-        document.getElementById('horario-salon').innerHTML = "<b>No hay horarios cargados.</b>";
-      }
+      const contenedorId = document.getElementById('horario-espacio') ? 'horario-espacio' : 'horario-salon';
+      document.getElementById(contenedorId).innerHTML = "<b>No hay horarios cargados.</b>";
     } else {
       renderAllButtons(horariosJSON);
+      // Mostrar el primer salón por defecto
+      const primerSalon = Object.keys(horariosJSON)[0];
+      if (primerSalon) {
+        const primerBoton = document.querySelector('#button-bar button, .submenu-salones button');
+        if (primerBoton) {
+          showSchedule(primerSalon, primerBoton);
+        }
+      }
     }
-  }).catch(e=>{
-    if(document.getElementById('horario-espacio')) {
-      document.getElementById('horario-espacio').innerHTML = "<b>Error cargando datos.</b>";
-    } else {
-      document.getElementById('horario-salon').innerHTML = "<b>Error cargando datos.</b>";
-    }
-    console.error(e);
+  })
+  .catch(error => {
+    console.error('Error cargando datos:', error);
+    const contenedorId = document.getElementById('horario-espacio') ? 'horario-espacio' : 'horario-salon';
+    document.getElementById(contenedorId).innerHTML = "<b>Error cargando datos.</b>";
   });
