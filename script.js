@@ -309,6 +309,16 @@ function renderCalendario(id, data, nombre) {
           gridContainer.appendChild(claseCell);
           
           console.log(`Clase añadida: ${clase.materia} en ${dia} de ${clase.inicio} a ${clase.fin}, fila ${filaIdx + 2}, span ${duracion}`);
+        } else {
+          // Crear celda vacía con fondo blanco
+          const celdaVacia = document.createElement("div");
+          celdaVacia.style.cssText = `
+            grid-row: ${filaIdx + 2};
+            grid-column: ${diaIdx + 2};
+            background: white;
+            border: 1px solid #ddd;
+          `;
+          gridContainer.appendChild(celdaVacia);
         }
       }
     });
