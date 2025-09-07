@@ -104,21 +104,26 @@ function renderCalendario(id, data, nombre) {
   thead.appendChild(trh);
   tabla.appendChild(thead);
 
-  // Matriz para saber en qué celdas ya hay rowSpan
-  const ocupadas = Array.from({length:intervalos.length},()=>dias.map(()=>false));
+  // --- Matriz de ocupación ---
+  const ocupadas = Array.from({length:intervalos.length}, ()=>dias.map(()=>false));
 
-  // Body
+  // --- Body ---
   const tbody = document.createElement("tbody");
   tabla.appendChild(tbody);
 
-  intervalos.forEach(({inicio,fin}, fila) => {
+  for (let fila = 0; fila < intervalos.length; fila++) {
+    const {inicio,fin} = intervalos[fila];
     const tr = document.createElement("tr");
     // Columna hora
     tr.innerHTML = `<td>${inicio} - ${fin}</td>`;
-    dias.forEach((dia, colDia) => {
-      if (ocupadas[fila][colDia]) return; // Ya ocupada por rowSpan
+
+    for (let colDia = 0; colDia < dias.length; colDia++) {
+      if (ocupadas[fila][colDia]) continue; // NO agregar celda si está ocupada por un rowSpan anterior
+
+      const dia = dias[colDia];
       // ¿Hay clase que empieza justo aquí?
       const clase = data.find(ev => ev.dia === dia && ev.inicio === inicio);
+
       if(clase) {
         // ¿Cuántos intervalos ocupa?
         let duracion = 1;
@@ -133,8 +138,8 @@ function renderCalendario(id, data, nombre) {
           duracion++;
           t = next;
         }
-        // Marca intervalos ocupados
-        for(let k=0;k<duracion;k++) if(fila+k<ocupadas.length) ocupadas[fila+k][colDia]=true;
+        // Marca intervalos ocupados para ese día, menos el primero (ese sí lleva td)
+        for(let k=1;k<duracion;k++) if(fila+k<ocupadas.length) ocupadas[fila+k][colDia]=true;
         // Dibuja bloque
         const td = document.createElement("td");
         td.rowSpan = duracion;
@@ -143,12 +148,13 @@ function renderCalendario(id, data, nombre) {
         if(clase.comentario) td.title = clase.comentario;
         tr.appendChild(td);
       } else {
+        // Solo agrega celda vacía si no está ocupada por rowSpan
         const td = document.createElement("td");
         tr.appendChild(td);
       }
-    });
+    }
     tbody.appendChild(tr);
-  });
+  }
 }
 
 function showSchedule(nombre, btn) {
