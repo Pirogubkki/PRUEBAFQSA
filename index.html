@@ -6,22 +6,14 @@
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet">
 </head>
 <body>
-
-</head>
-<body>
-
-
-
-
-
 <header class="main-header">
   <h1>Horarios de los salones agosto-diciembre 2025</h1>
 </header>
-<button class="open-modal-btn" onclick="openSolicitud()">Solicitar espacio</button>
 
+<button class="open-modal-btn" onclick="openSolicitud()">Solicitar espacio</button>
 <div id="modal-solicitud-bg" class="modal-bg">
   <div class="modal-solicitud">
     <button class="close-modal-btn" onclick="closeSolicitud()">×</button>
@@ -37,8 +29,6 @@
   </div>
 </div>
 
-
-
 <div class="leyenda">
   <div class="leyenda-item">
     <span class="cuadro verde"></span> clase semestral
@@ -50,25 +40,8 @@
 
 <div id="salones" class="tab-content active">
   <h2>Salones</h2>
-  <div class="submenu-salones" id="submenu-salones"></div>
-  <div id="horario-salon"></div>
-</div>
-  
-<!-- Sidebar para Formulario -->
-<div id="sidebar" class="sidebar">
-  <button class="close-btn" onclick="closeSidebar()">×</button>
-  <h2>Apartar un salón</h2>
-  <form id="my-form" action="https://formspree.io/f/meolvgrk" method="POST">
-    <label>Email:</label>
-    <input type="email" name="email" required />
-    
-    <label>Salón, horario, días y el tiempo que quiereas apartar:</label>
-    <input type="text" name="message" required />
-    
-    <button id="my-form-button" type="submit">Submit</button>
-    <p id="my-form-status"></p>
-    
-  </form>
+  <div class="submenu-salones" id="button-bar"></div>
+  <div id="horario-espacio"></div>
 </div>
 
 <footer style="text-align:center; padding:200px; font-size:14px; color:#666;">
@@ -77,6 +50,20 @@
 
 <script src="script.js"></script>
 <script>
+function openSolicitud() {
+  document.getElementById('modal-solicitud-bg').classList.add('active');
+}
+function closeSolicitud() {
+  document.getElementById('modal-solicitud-bg').classList.remove('active');
+}
+document.addEventListener('DOMContentLoaded', function() {
+  const modalBg = document.getElementById('modal-solicitud-bg');
+  if(modalBg) {
+    modalBg.onclick = function(e) {
+      if (e.target === this) closeSolicitud();
+    };
+  }
+  // Formulario AJAX para el modal
   var form = document.getElementById("my-form");
   if(form){
     async function handleSubmit(event) {
@@ -90,7 +77,7 @@
       }).then(response => {
         if (response.ok) {
           status.innerHTML = "¡Gracias por tu solicitud!";
-          form.reset()
+          form.reset();
         } else {
           response.json().then(data => {
             if (Object.hasOwn(data, 'errors')) {
@@ -106,6 +93,7 @@
     }
     form.addEventListener("submit", handleSubmit)
   }
+});
 </script>
 </body>
 </html>
