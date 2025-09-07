@@ -91,7 +91,15 @@ function renderCalendario(id, data, nombre) {
   if (horariosJSON[nombre] && horariosJSON[nombre].capacidad)
     cont.innerHTML += `<div style="font-size:15px; color:#388;">Capacidad: ${horariosJSON[nombre].capacidad} alumnos</div>`;
 
-  // Crear tabla tipo grid
+  // Definir intervalos de media hora
+  const horaInicio = 8, horaFin = 20;
+  const intervalos = [];
+  for (let h = horaInicio; h < horaFin; h++) {
+    intervalos.push({inicio:`${String(h).padStart(2,'0')}:00`, fin:`${String(h).padStart(2,'0')}:30`});
+    intervalos.push({inicio:`${String(h).padStart(2,'0')}:30`, fin:`${String(h+1).padStart(2,'0')}:00`});
+  }
+
+  // Crear tabla
   const tabla = document.createElement("table");
   tabla.className = "horario-tabla";
   cont.appendChild(tabla);
@@ -104,58 +112,54 @@ function renderCalendario(id, data, nombre) {
   thead.appendChild(trh);
   tabla.appendChild(thead);
 
-  // --- Matriz de ocupación ---
+  // Matriz de ocupación
   const ocupadas = Array.from({length:intervalos.length}, ()=>dias.map(()=>false));
 
-  // --- Body ---
+  // Cuerpo
   const tbody = document.createElement("tbody");
   tabla.appendChild(tbody);
 
   for (let fila = 0; fila < intervalos.length; fila++) {
     const {inicio,fin} = intervalos[fila];
     const tr = document.createElement("tr");
-    // Columna hora
     tr.innerHTML = `<td>${inicio} - ${fin}</td>`;
 
     for (let colDia = 0; colDia < dias.length; colDia++) {
-      if (ocupadas[fila][colDia]) continue; // NO agregar celda si está ocupada por un rowSpan anterior
+      if (ocupadas[fila][colDia]) continue;
 
       const dia = dias[colDia];
-      // ¿Hay clase que empieza justo aquí?
       const clase = data.find(ev => ev.dia === dia && ev.inicio === inicio);
 
       if(clase) {
-        // ¿Cuántos intervalos ocupa?
+        // Calcular duración
         let duracion = 1;
         let t = inicio;
         while(true) {
-          // Nueva hora
           const [h,m] = t.split(":").map(Number);
-          let next;
-          if(m === 0) next = `${String(h).padStart(2,'0')}:30`;
-          else next = `${String(h+1).padStart(2,'0')}:00`;
+          let next = (m === 0) ? `${String(h).padStart(2,'0')}:30` : `${String(h+1).padStart(2,'0')}:00`;
           if(next === clase.fin) break;
           duracion++;
           t = next;
         }
-        // Marca intervalos ocupados para ese día, menos el primero (ese sí lleva td)
+        // Marcar ocupadas SOLO desde la segunda fila
         for(let k=1;k<duracion;k++) if(fila+k<ocupadas.length) ocupadas[fila+k][colDia]=true;
-        // Dibuja bloque
+
+        // Crear celda clase
         const td = document.createElement("td");
         td.rowSpan = duracion;
-        td.className = clase.tipo === "extraordinaria" ? "bloque-clase extraordinaria" : "bloque-clase";
-        td.innerHTML = `<b>${clase.materia}</b><br><span style="font-size:12px">${clase.inicio} - ${clase.fin}</span>`;
+        td.className = "bloque-clase" + (clase.tipo === "extraordinaria" ? " extraordinaria" : "");
+        td.innerHTML = `<b>${clase.materia}</b><br><span style="font-size:13px">${clase.inicio} - ${clase.fin}</span>`;
         if(clase.comentario) td.title = clase.comentario;
         tr.appendChild(td);
       } else {
-        // Solo agrega celda vacía si no está ocupada por rowSpan
-        const td = document.createElement("td");
-        tr.appendChild(td);
+        // Celda vacía solo si no está ocupada
+        tr.appendChild(document.createElement("td"));
       }
     }
     tbody.appendChild(tr);
   }
 }
+
 
 function showSchedule(nombre, btn) {
   if(activeButton) activeButton.classList.remove('active');
