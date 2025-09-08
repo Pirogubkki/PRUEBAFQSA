@@ -415,8 +415,8 @@ fetch(SHEET_URL)
   });
 
 // --- BUSCADOR DE ESPACIOS LIBRES ---
-// --- BUSCADOR DE ESPACIOS LIBRES ROBUSTO ---
-function buscarEspaciosLibres(dia, horaInicio, duracionMin, tipo) {
+// --- BUSCADOR DE ESPACIOS LIBRES ---
+function buscarEspaciosLibres(dia, horaInicio, duracionMin) {
   const libres = [];
   // Convertir hora de inicio a minutos
   const [h, m] = horaInicio.split(':');
@@ -424,23 +424,15 @@ function buscarEspaciosLibres(dia, horaInicio, duracionMin, tipo) {
   const finMin = iniMin + duracionMin;
 
   Object.keys(horariosJSON).forEach(salon => {
-    // Normalización robusta del nombre
-    const nombreNorm = normalizaNombre(salon).replace(/\s+/g, '');
-
-    // Filtrado por tipo
-    if (
-      (tipo === "salon" && !nombreNorm.startsWith("salon")) ||
-      (tipo === "laboratorio" && !nombreNorm.startsWith("laboratorio"))
-    ) {
-      return; // No coincide el tipo
-    }
     const eventos = horariosJSON[salon][dia] || [];
+    // Si no hay eventos, está libre todo el día
     let ocupado = eventos.some(ev => {
+      // Convertir horas a minutos
       const [hin, minin] = ev.inicio.split(':');
       const [hfin, minfin] = ev.fin.split(':');
       const evIni = parseInt(hin) * 60 + parseInt(minin);
       const evFin = parseInt(hfin) * 60 + parseInt(minfin);
-      // Se empalman si NO está completamente antes o después
+      // ¿Se empalman?
       return !(finMin <= evIni || iniMin >= evFin);
     });
     if (!ocupado) libres.push(salon);
@@ -456,8 +448,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const dia = document.getElementById('busc-dia').value;
       const hora = document.getElementById('busc-hora').value;
       const dur = parseInt(document.getElementById('busc-duracion').value);
-      const tipo = document.getElementById('busc-tipo').value;
-      const libres = buscarEspaciosLibres(dia, hora, dur, tipo);
+      const libres = buscarEspaciosLibres(dia, hora, dur);
       const resDiv = document.getElementById('resultado-buscador');
       if (libres.length) {
         resDiv.innerHTML = `<b>Espacios libres:</b> ${libres.map(s => `<span style="margin-right:8px;">${s}</span>`).join('')}`;
