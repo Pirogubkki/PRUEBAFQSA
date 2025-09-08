@@ -345,3 +345,27 @@ body {
     width: fit-content;
   }
 }
+
+.buscador-libres {
+  background: #f1fff6;
+  border: 2px solid #8cc38a;
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin: 20px;
+  font-size: 16px;
+  max-width: 520px;
+}
+.buscador-libres label {
+  margin-right: 8px;
+}
+.buscador-libres select, .buscador-libres input {
+  margin-right: 12px;
+  border-radius: 4px;
+  border: 1px solid #b3d4be;
+  padding: 4px 8px;
+}
+#resultado-buscador {
+  margin: 18px 0 0 20px;
+  font-size: 17px;
+  color: #215c35;
+}
