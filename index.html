@@ -13,6 +13,34 @@
   <h1>Horarios de los salones agosto-diciembre 2025</h1>
 </header>
 
+<!-- ... dentro de <body> ... -->
+<div class="buscador-libres">
+  <h2>Buscar espacio libre</h2>
+  <label for="busc-dia">Día:</label>
+  <select id="busc-dia">
+    <option>Lunes</option>
+    <option>Martes</option>
+    <option>Miércoles</option>
+    <option>Jueves</option>
+    <option>Viernes</option>
+  </select>
+  <label for="busc-hora">Hora de inicio:</label>
+  <input type="time" id="busc-hora" min="08:00" max="20:00" step="1800" value="08:00" />
+  <label for="busc-duracion">Duración (min):</label>
+  <select id="busc-duracion">
+    <option value="30">30</option>
+    <option value="60" selected>60</option>
+    <option value="90">90</option>
+    <option value="120">120</option>
+  </select>
+  <button id="buscador-btn">Buscar</button>
+</div>
+<div id="resultado-buscador"></div>
+
+
+
+
+
 <button class="open-modal-btn" onclick="openSolicitud()">Solicitar espacio</button>
 <div id="modal-solicitud-bg" class="modal-bg">
   <div class="modal-solicitud">
