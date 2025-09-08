@@ -440,6 +440,35 @@ function buscarEspaciosLibres(dia, horaInicio, duracionMin) {
 }
 
 // Vincular al formulario de búsqueda
+function buscarEspaciosLibres(dia, horaInicio, duracionMin, tipo) {
+  const libres = [];
+  // Convertir hora de inicio a minutos
+  const [h, m] = horaInicio.split(':');
+  const iniMin = parseInt(h) * 60 + parseInt(m);
+  const finMin = iniMin + duracionMin;
+
+  Object.keys(horariosJSON).forEach(salon => {
+    // Filtrado por tipo
+    if (
+      (tipo === "salon" && !/^sal(o|ó)n/i.test(salon)) ||
+      (tipo === "laboratorio" && !/^laboratorio/i.test(salon))
+    ) {
+      return; // No coincide el tipo
+    }
+    const eventos = horariosJSON[salon][dia] || [];
+    let ocupado = eventos.some(ev => {
+      const [hin, minin] = ev.inicio.split(':');
+      const [hfin, minfin] = ev.fin.split(':');
+      const evIni = parseInt(hin) * 60 + parseInt(minin);
+      const evFin = parseInt(hfin) * 60 + parseInt(minfin);
+      return !(finMin <= evIni || iniMin >= evFin);
+    });
+    if (!ocupado) libres.push(salon);
+  });
+  return libres;
+}
+
+// Vincular al formulario de búsqueda
 document.addEventListener('DOMContentLoaded', function() {
   const btn = document.getElementById('buscador-btn');
   if (btn) {
@@ -447,7 +476,8 @@ document.addEventListener('DOMContentLoaded', function() {
       const dia = document.getElementById('busc-dia').value;
       const hora = document.getElementById('busc-hora').value;
       const dur = parseInt(document.getElementById('busc-duracion').value);
-      const libres = buscarEspaciosLibres(dia, hora, dur);
+      const tipo = document.getElementById('busc-tipo').value;
+      const libres = buscarEspaciosLibres(dia, hora, dur, tipo);
       const resDiv = document.getElementById('resultado-buscador');
       if (libres.length) {
         resDiv.innerHTML = `<b>Espacios libres:</b> ${libres.map(s => `<span style="margin-right:8px;">${s}</span>`).join('')}`;
