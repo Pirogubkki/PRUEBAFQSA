@@ -413,3 +413,47 @@ fetch(SHEET_URL)
     const contenedorId = document.getElementById('horario-espacio') ? 'horario-espacio' : 'horario-salon';
     document.getElementById(contenedorId).innerHTML = "<b>Error cargando datos.</b>";
   });
+
+// --- BUSCADOR DE ESPACIOS LIBRES ---
+function buscarEspaciosLibres(dia, horaInicio, duracionMin) {
+  const libres = [];
+  // Convertir hora de inicio a minutos
+  const [h, m] = horaInicio.split(':');
+  const iniMin = parseInt(h) * 60 + parseInt(m);
+  const finMin = iniMin + duracionMin;
+
+  Object.keys(horariosJSON).forEach(salon => {
+    const eventos = horariosJSON[salon][dia] || [];
+    // Si no hay eventos, está libre todo el día
+    let ocupado = eventos.some(ev => {
+      // Convertir horas a minutos
+      const [hin, minin] = ev.inicio.split(':');
+      const [hfin, minfin] = ev.fin.split(':');
+      const evIni = parseInt(hin) * 60 + parseInt(minin);
+      const evFin = parseInt(hfin) * 60 + parseInt(minfin);
+      // ¿Se empalman?
+      return !(finMin <= evIni || iniMin >= evFin);
+    });
+    if (!ocupado) libres.push(salon);
+  });
+  return libres;
+}
+
+// Vincular al formulario de búsqueda
+document.addEventListener('DOMContentLoaded', function() {
+  const btn = document.getElementById('buscador-btn');
+  if (btn) {
+    btn.onclick = function() {
+      const dia = document.getElementById('busc-dia').value;
+      const hora = document.getElementById('busc-hora').value;
+      const dur = parseInt(document.getElementById('busc-duracion').value);
+      const libres = buscarEspaciosLibres(dia, hora, dur);
+      const resDiv = document.getElementById('resultado-buscador');
+      if (libres.length) {
+        resDiv.innerHTML = `<b>Espacios libres:</b> ${libres.map(s => `<span style="margin-right:8px;">${s}</span>`).join('')}`;
+      } else {
+        resDiv.innerHTML = `<b>No hay espacios libres en ese horario 😢</b>`;
+      }
+    };
+  }
+});
