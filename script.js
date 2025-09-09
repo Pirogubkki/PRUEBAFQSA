@@ -415,8 +415,6 @@ fetch(SHEET_URL)
   });
 
 // --- BUSCADOR DE ESPACIOS LIBRES ---
-// --- BUSCADOR DE ESPACIOS LIBRES ---
-
 function buscarEspaciosLibres(dia, horaInicio, duracionMin) {
   const libres = [];
   // Convertir hora de inicio a minutos
