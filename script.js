@@ -417,13 +417,6 @@ fetch(SHEET_URL)
 // --- BUSCADOR DE ESPACIOS LIBRES ---
 // --- BUSCADOR DE ESPACIOS LIBRES ---
 
-// Antes de buscar salones libres, valida la hora:
-const [h, m] = horaInicio.split(':').map(Number);
-if (h < 8 || h >= 20) {
-  alert('El horario debe estar entre 08:00 y 20:00');
-  return;
-}
-
 function buscarEspaciosLibres(dia, horaInicio, duracionMin) {
   const libres = [];
   // Convertir hora de inicio a minutos
