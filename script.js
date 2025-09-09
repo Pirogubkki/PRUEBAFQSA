@@ -416,10 +416,19 @@ fetch(SHEET_URL)
 
 // --- BUSCADOR DE ESPACIOS LIBRES ---
 function buscarEspaciosLibres(dia, horaInicio, duracionMin) {
+  // Validación de horario: solo entre 08:00 y 20:00
+  const [h, m] = horaInicio.split(':').map(Number);
+  if (
+    isNaN(h) || isNaN(m) || 
+    h < horaInicio || h >= horaFin || 
+    m < 0 || m > 59
+  ) {
+    // Si el horario no es válido, regresa un array vacío
+    return [];
+  }
+
   const libres = [];
-  // Convertir hora de inicio a minutos
-  const [h, m] = horaInicio.split(':');
-  const iniMin = parseInt(h) * 60 + parseInt(m);
+  const iniMin = h * 60 + m;
   const finMin = iniMin + duracionMin;
 
   Object.keys(horariosJSON).forEach(salon => {
@@ -447,6 +456,18 @@ document.addEventListener('DOMContentLoaded', function() {
       const dia = document.getElementById('busc-dia').value;
       const hora = document.getElementById('busc-hora').value;
       const dur = parseInt(document.getElementById('busc-duracion').value);
+
+      // Validación visual directa para el usuario
+      const [h, m] = hora.split(':').map(Number);
+      if (
+        isNaN(h) || isNaN(m) || 
+        h < horaInicio || h >= horaFin || 
+        m < 0 || m > 59
+      ) {
+        document.getElementById('resultado-buscador').innerHTML = `<b>El horario debe estar entre 08:00 y 20:00, con formato HH:MM.</b>`;
+        return;
+      }
+
       const libres = buscarEspaciosLibres(dia, hora, dur);
       const resDiv = document.getElementById('resultado-buscador');
       if (libres.length) {
