@@ -19,7 +19,7 @@ let horariosJSON = {};
 let activeButton = null;
 
 // URL de tu hoja pública
-const SHEET_URL = "https://opensheet.elk.sh/1J8gZdT3VF1DJZ37kxTo8LRw7-2VOFfFSDc5Iu2YFVWQ/Horarios";
+const SHEET_URL = "https://opensheet.elk.sh/1J8gZdT3VF1DJZ37kxTo8LRw7-2VOFfFSDc5Iu2YFVWQ/2";
 
 // Normaliza día y salón
 function normalizaDia(str) {
