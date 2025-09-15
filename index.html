@@ -7,80 +7,89 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css?family=DM+Sans:ital,opsz,wght" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+
 </head>
 <body>
 <header class="main-header">
   <h1>Horarios de los salones agosto-diciembre 2025</h1>
   <h5>Contacto: Instagram <b>@Poolkiin</b> </h5>
+
 </header>
 
-<div class="main-layout">
-  <!-- Columna de avisos -->
-  <aside class="avisos-columna">
-    <div class="avisos-box">
-      <h2>📢 Avisos</h2>
-      <ul>
-        <li>¡Bienvenido a la plataforma!</li>
-        <li>Revisa los nuevos materiales.</li>
-        <li>Consulta tus calificaciones.</li>
-      </ul>
-    </div>
-  </aside>
+  
+<div id="avisos-popup" class="avisos-popup">
+  <div class="avisos-popup-header">
+    <span>Avisos y reportes</span>
+    <button onclick="document.getElementById('avisos-popup').style.display='none'" title="Cerrar">&times;</button>
+  </div>
+  <ul>
+    <li>¡Bienvenido a la plataforma!</li>
+    <li>Revisa los nuevos materiales.</li>
+    <li>Consulta tus calificaciones.</li>
+  </ul>
+</div>
+  
+<!-- ... dentro de <body> ... -->
+<div class="buscador-libres">
+  <h2>Buscar espacio libre</h2>
+  <label for="busc-dia">Día:</label>
+  <select id="busc-dia">
+    <option>Lunes</option>
+    <option>Martes</option>
+    <option>Miércoles</option>
+    <option>Jueves</option>
+    <option>Viernes</option>
+  </select>
+  <label for="busc-hora">Hora de inicio:</label>
+  <input type="time" id="busc-hora" min="08:00" max="20:00" step="1800" value="08:00" />
+  <label for="busc-duracion">Duración (min):</label>
+  <select id="busc-duracion">
+    <option value="30">30</option>
+    <option value="60" selected>60</option>
+    <option value="90">90</option>
+    <option value="120">120</option>
+  </select>
+  <button id="buscador-btn">Buscar</button>
+</div>
+<div id="resultado-buscador"></div>
 
-  <!-- Columna principal -->
-  <main class="contenido-columna">
-    <div class="buscador-libres">
-      <h2>Buscar espacio libre</h2>
-      <label for="busc-dia">Día:</label>
-      <select id="busc-dia">
-        <option>Lunes</option>
-        <option>Martes</option>
-        <option>Miércoles</option>
-        <option>Jueves</option>
-        <option>Viernes</option>
-      </select>
-      <label for="busc-hora">Hora de inicio:</label>
-      <input type="time" id="busc-hora" min="08:00" max="20:00" step="1800" value="08:00" />
-      <label for="busc-duracion">Duración (min):</label>
-      <select id="busc-duracion">
-        <option value="30">30</option>
-        <option value="60" selected>60</option>
-        <option value="90">90</option>
-        <option value="120">120</option>
-      </select>
-      <button id="buscador-btn">Buscar</button>
-    </div>
-    <div id="resultado-buscador"></div>
-    <button class="open-modal-btn" onclick="openSolicitud()">Solicitar espacio</button>
-    <div id="modal-solicitud-bg" class="modal-bg">
-      <div class="modal-solicitud">
-        <button class="close-modal-btn" onclick="closeSolicitud()">×</button>
-        <h2>Apartar un salón</h2>
-        <form id="my-form" action="https://api.sheetmonkey.io/form/wci2QVScCM6NKECY2PfGBB" method="post">
-          <label>Email:</label>
-          <input type="email" name="email" required />
-          <label>Salón, Horario, Día y ¿hasta qué fecha estará apartadado el sitio?:</label>
-          <input type="text" name="message" required />
-          <input type="hidden" name="Created" value="x-sheetmonkey-current-date-time" />
-          <button type="submit">Enviar</button>
-          <p id="my-form-status"></p>
-        </form>
-      </div>
-    </div>
-    <div class="leyenda">
-      <div class="leyenda-item">
-        <span class="cuadro verde"></span> clase semestral
-      </div>
-      <div class="leyenda-item">
-        <span class="cuadro rosa"></span> clase extraordinaria
-      </div>
-    </div>
-    <div id="salones" class="tab-content active">
-      <h2>Salones</h2>
-      <div class="submenu-salones" id="button-bar"></div>
-      <div id="horario-espacio"></div>
-    </div>
-  </main>
+
+
+
+
+<button class="open-modal-btn" onclick="openSolicitud()">Solicitar espacio</button>
+<div id="modal-solicitud-bg" class="modal-bg">
+  <div class="modal-solicitud">
+    <button class="close-modal-btn" onclick="closeSolicitud()">×</button>
+    <h2>Apartar un salón</h2>
+    <form id="my-form" action="https://api.sheetmonkey.io/form/wci2QVScCM6NKECY2PfGBB" method="post">
+      <label>Email:</label>
+      <input type="email" name="email" required />
+      <label>Salón, Horario, Día y ¿hasta qué fecha estará apartadado el sitio?:</label>
+      <input type="text" name="message" required />
+ <input type="hidden" name="Created" value="x-sheetmonkey-current-date-time" />
+
+      <button type="submit">Enviar</button>
+      <p id="my-form-status"></p>
+    </form>
+  </div>
+</div>
+
+<div class="leyenda">
+  <div class="leyenda-item">
+    <span class="cuadro verde"></span> Clase semestral
+  </div>
+  <div class="leyenda-item">
+    <span class="cuadro rosa"></span> Clase extraordinaria
+  </div>
+</div>
+
+<div id="salones" class="tab-content active">
+  <h2>Salones</h2>
+  <div class="submenu-salones" id="button-bar"></div>
+  <div id="horario-espacio"></div>
 </div>
 
 <script src="script.js"></script>
