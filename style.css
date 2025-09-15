@@ -373,44 +373,43 @@ body {
 //Cosa
 
 
-#avisos-tab {
+.avisos-tab {
   position: fixed;
-  top: 80px;
+  top: 70px;
   left: 0;
   background: #1976d2;
-  color: white;
+  color: #fff;
   border-radius: 0 12px 12px 0;
   box-shadow: 2px 2px 10px #0002;
-  padding: 12px 20px;
+  padding: 12px 22px 12px 16px;
   font-weight: bold;
   cursor: pointer;
+  z-index: 1020;
   transition: left 0.3s;
-  z-index: 9999;
   user-select: none;
 }
-
-#avisos-tab.hidden {
-  left: -200px; /* Esconde la pestaña cuando la barra está abierta */
+.avisos-tab.oculto {
+  left: -200px; /* Oculta la pestaña cuando el sidebar está abierto */
 }
 
-#avisos-sidebar {
+.avisos-sidebar {
   position: fixed;
-  top: 60px;
-  left: -350px;
-  width: 320px;
+  top: 50px;
+  left: -320px;
+  width: 290px;
   background: #1976d2;
   color: white;
   border-radius: 0 18px 18px 0;
   box-shadow: 4px 4px 18px #0002;
-  min-height: 270px;
+  min-height: 180px;
+  padding-bottom: 18px;
   transition: left 0.3s;
-  z-index: 10000;
-  padding: 0 0 18px 0;
+  z-index: 1050;
   display: flex;
   flex-direction: column;
 }
 
-#avisos-sidebar.open {
+.avisos-sidebar.open {
   left: 0;
 }
 
@@ -425,41 +424,39 @@ body {
   font-weight: 600;
 }
 
-#avisos-close {
+#avisosClose {
   background: none;
   border: none;
   color: white;
   font-size: 1.5em;
   cursor: pointer;
-  margin-left: 10px;
+  margin-left: 8px;
   transition: color 0.2s;
 }
-
-#avisos-close:hover {
+#avisosClose:hover {
   color: #ffecb3;
 }
 
-#avisos-sidebar ul {
-  list-style: none;
-  margin: 18px 0 0 0;
-  padding: 0 22px;
+.avisos-sidebar ul {
+  list-style: disc outside;
+  margin: 18px 0 0 30px;
+  padding: 0;
 }
-
-#avisos-sidebar li {
-  margin: 14px 0;
-  font-size: 1em;
+.avisos-sidebar li {
+  margin: 10px 0;
+  font-size: 1.05rem;
+  padding-left: 2px;
   border-left: 3px solid #fff9;
-  padding-left: 10px;
 }
 
-/* Responsive para pantallas pequeñas */
-@media (max-width: 600px) {
-  #avisos-sidebar {
-    width: 85vw;
+/* Responsive */
+@media (max-width: 700px) {
+  .avisos-sidebar {
+    width: 84vw;
     min-width: 0;
     left: -100vw;
   }
-  #avisos-sidebar.open {
+  .avisos-sidebar.open {
     left: 0;
   }
 }
