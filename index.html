@@ -19,17 +19,30 @@
 </header>
 
   
-<div class="sidebar">
-  <h2>Avisos</h2>
+<!-- Pestaña flotante -->
+<div id="avisos-tab" onclick="toggleAvisosSidebar()">
+  <span>📢 Avisos y reportes</span>
+</div>
+
+<!-- Sidebar flotante, oculto por defecto -->
+<div id="avisos-sidebar">
+  <div class="avisos-header">
+    <span>Avisos</span>
+    <button id="avisos-close" onclick="toggleAvisosSidebar()">&times;</button>
+  </div>
   <ul>
     <li>¡Bienvenido a la plataforma!</li>
     <li>Revisa los nuevos materiales.</li>
     <li>Consulta tus calificaciones.</li>
   </ul>
 </div>
-<div class="main-content">
-  <!-- Aquí va el contenido principal -->
-</div>
+
+<script>
+function toggleAvisosSidebar() {
+  document.getElementById('avisos-sidebar').classList.toggle('open');
+  document.getElementById('avisos-tab').classList.toggle('hidden');
+}
+</script>
 
   
 <!-- ... dentro de <body> ... -->
