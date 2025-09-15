@@ -373,42 +373,93 @@ body {
 //Cosa
 
 
-body {
-  display: flex;
-  margin: 0;
-  font-family: 'Segoe UI', Arial, sans-serif;
-  background-color: #f5f6fa;
-}
-
-.sidebar {
-  width: 250px;
-  background: linear-gradient(135deg, #1976d2 80%, #64b5f6 100%);
+#avisos-tab {
+  position: fixed;
+  top: 80px;
+  left: 0;
+  background: #1976d2;
   color: white;
-  min-height: 100vh;
-  padding: 30px 20px;
-  box-shadow: 2px 0 8px rgba(0,0,0,0.06);
+  border-radius: 0 12px 12px 0;
+  box-shadow: 2px 2px 10px #0002;
+  padding: 12px 20px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: left 0.3s;
+  z-index: 9999;
+  user-select: none;
 }
 
-.sidebar h2 {
-  margin-top: 0;
-  font-size: 1.5rem;
-  border-bottom: 1px solid #ffffff44;
-  padding-bottom: 8px;
+#avisos-tab.hidden {
+  left: -200px; /* Esconde la pestaña cuando la barra está abierta */
 }
 
-.sidebar ul {
+#avisos-sidebar {
+  position: fixed;
+  top: 60px;
+  left: -350px;
+  width: 320px;
+  background: #1976d2;
+  color: white;
+  border-radius: 0 18px 18px 0;
+  box-shadow: 4px 4px 18px #0002;
+  min-height: 270px;
+  transition: left 0.3s;
+  z-index: 10000;
+  padding: 0 0 18px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+#avisos-sidebar.open {
+  left: 0;
+}
+
+.avisos-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1565c0;
+  border-radius: 0 18px 0 0;
+  padding: 16px 18px 10px 18px;
+  font-size: 1.2em;
+  font-weight: 600;
+}
+
+#avisos-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5em;
+  cursor: pointer;
+  margin-left: 10px;
+  transition: color 0.2s;
+}
+
+#avisos-close:hover {
+  color: #ffecb3;
+}
+
+#avisos-sidebar ul {
   list-style: none;
-  padding: 0;
+  margin: 18px 0 0 0;
+  padding: 0 22px;
 }
 
-.sidebar li {
-  margin: 18px 0;
-  font-size: 1.05rem;
-  padding-left: 8px;
+#avisos-sidebar li {
+  margin: 14px 0;
+  font-size: 1em;
   border-left: 3px solid #fff9;
+  padding-left: 10px;
 }
 
-.main-content {
-  flex: 1;
-  padding: 30px;
+/* Responsive para pantallas pequeñas */
+@media (max-width: 600px) {
+  #avisos-sidebar {
+    width: 85vw;
+    min-width: 0;
+    left: -100vw;
+  }
+  #avisos-sidebar.open {
+    left: 0;
+  }
 }
