@@ -19,16 +19,10 @@
 </header>
 
   
-<!-- Pestaña flotante -->
-<div id="avisosTab" class="avisos-tab" onclick="toggleAvisosSidebar()">
-  <span>📢 Avisos y reportes</span>
-</div>
-
-<!-- Sidebar flotante y ocultable -->
-<div id="avisosSidebar" class="avisos-sidebar">
-  <div class="avisos-header">
-    <span>Avisos</span>
-    <button id="avisosClose" onclick="toggleAvisosSidebar()">&times;</button>
+<div id="avisos-popup" class="avisos-popup">
+  <div class="avisos-popup-header">
+    <span>Avisos y reportes</span>
+    <button onclick="document.getElementById('avisos-popup').style.display='none'" title="Cerrar">&times;</button>
   </div>
   <ul>
     <li>¡Bienvenido a la plataforma!</li>
@@ -36,12 +30,6 @@
     <li>Consulta tus calificaciones.</li>
   </ul>
 </div>
-<script>
-function toggleAvisosSidebar() {
-  document.getElementById('avisosSidebar').classList.toggle('open');
-  document.getElementById('avisosTab').classList.toggle('oculto');
-}
-</script>
   
 <!-- ... dentro de <body> ... -->
 <div class="buscador-libres">
