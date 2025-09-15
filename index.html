@@ -918,7 +918,7 @@
         // Celda de hora
         const horaCell = document.createElement("div");
         horaCell.className = "grid-hora";
-        horaCell.textContent = `${intervalo.inicio}`;
+        horaCell.textContent = `${intervalo.inicio} - ${intervalo.fin}`;
         horaCell.style.cssText = `
           grid-row: ${filaIdx + 2};
           grid-column: 1;
