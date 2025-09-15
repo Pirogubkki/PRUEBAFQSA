@@ -369,3 +369,46 @@ body {
   font-size: 17px;
   color: #215c35;
 }
+
+//Cosa
+
+
+body {
+  display: flex;
+  margin: 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background-color: #f5f6fa;
+}
+
+.sidebar {
+  width: 250px;
+  background: linear-gradient(135deg, #1976d2 80%, #64b5f6 100%);
+  color: white;
+  min-height: 100vh;
+  padding: 30px 20px;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.06);
+}
+
+.sidebar h2 {
+  margin-top: 0;
+  font-size: 1.5rem;
+  border-bottom: 1px solid #ffffff44;
+  padding-bottom: 8px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  margin: 18px 0;
+  font-size: 1.05rem;
+  padding-left: 8px;
+  border-left: 3px solid #fff9;
+}
+
+.main-content {
+  flex: 1;
+  padding: 30px;
+}
