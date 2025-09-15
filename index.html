@@ -747,6 +747,7 @@
       let inicioIdx = -1;
       let finIdx = -1;
       
+      // Buscar índice de inicio
       for (let i = 0; i < intervalos.length; i++) {
         if (intervalos[i].inicio === inicio) {
           inicioIdx = i;
@@ -754,6 +755,7 @@
         }
       }
       
+      // Buscar índice de fin - corregido para buscar por hora de fin, no por intervalo
       for (let i = 0; i < intervalos.length; i++) {
         if (intervalos[i].fin === fin) {
           finIdx = i;
@@ -761,11 +763,34 @@
         }
       }
       
-      if (inicioIdx === -1 || finIdx === -1) {
+      // Si no encontramos el fin exacto, buscar el intervalo que contiene esa hora como inicio
+      // Esto maneja casos como 20:00 que no está en nuestros intervalos como fin
+      if (finIdx === -1) {
+        for (let i = 0; i < intervalos.length; i++) {
+          if (intervalos[i].inicio === fin) {
+            finIdx = i - 1; // El intervalo anterior es donde termina realmente
+            break;
+          }
+        }
+      }
+      
+      if (inicioIdx === -1) {
+        console.warn(`No se encontró intervalo de inicio para: ${inicio}`);
         return 1;
       }
       
+      if (finIdx === -1) {
+        console.warn(`No se encontró intervalo de fin para: ${fin}`);
+        // Si es 20:00, debería ser el último intervalo (19:30-20:00)
+        if (fin === "20:00") {
+          finIdx = intervalos.length - 1;
+        } else {
+          return 1;
+        }
+      }
+      
       const duracion = finIdx - inicioIdx + 1;
+      console.log(`Duración calculada para ${inicio} - ${fin}: ${duracion} intervalos (índices ${inicioIdx} a ${finIdx})`);
       return duracion;
     }
 
