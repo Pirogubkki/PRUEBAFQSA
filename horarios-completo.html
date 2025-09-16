@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horarios Facultad</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-green: #2d5a3d;
+      --light-green: #8cc38a;
+      --accent-green: #a8d4a6;
+      --pink-accent: #f05aaa;
+      --light-pink: rgba(240, 90, 170, 0.1);
+      --background: #fafbfc;
+      --card-bg: #ffffff;
+      --text-primary: #1a1a1a;
+      --text-secondary: #6b7280;
+      --border-light: #e5e7eb;
+      --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      --shadow-medium: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      --shadow-large: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Inter", sans-serif;
+      background: linear-gradient(135deg, #f8fffe 0%, #f0f9f0 100%);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* Header con gradiente elegante */
+    .main-header {
+      background: linear-gradient(135deg, var(--primary-green) 0%, var(--light-green) 100%);
+      color: white;
+      padding: 3rem 2rem 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-medium);
+    }
+
+    .main-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.05"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.05"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.03"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
+      opacity: 0.3;
+    }
+
+    .main-header h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      position: relative;
+      z-index: 1;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .main-header h5 {
+      font-size: 1.1rem;
+      font-weight: 400;
+      opacity: 0.9;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Botones del header */
+    .header-buttons {
+      position: fixed;
+      top: 2rem;
+      right: 2rem;
+      display: flex;
+      gap: 1rem;
+      z-index: 100;
+    }
+
+    .open-modal-btn, .export-btn {
+      background: linear-gradient(135deg, var(--light-green) 0%, var(--accent-green) 100%);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 600;
+      box-shadow: var(--shadow-medium);
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .export-btn {
+      background: linear-gradient(135deg, var(--primary-green) 0%, var(--light-green) 100%);
+    }
+
+    .open-modal-btn:hover, .export-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-large);
+    }
+
+    .export-btn:hover {
+      background: linear-gradient(135deg, var(--light-green) 0%, var(--primary-green) 100%);
+    }
+
+    /* Container principal */
+    .main-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+      display: grid;
+      gap: 2rem;
+      grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 1024px) {
+      .main-container {
+        grid-template-columns: 350px 1fr;
+      }
+    }
+
+    /* Sidebar */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    /* Buscador elegante */
+    .buscador-libres {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--border-light);
+    }
+
+    .buscador-libres h2 {
+      color: var(--primary-green);
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .buscador-libres h2::before {
+      content: "🔍";
+      font-size: 1.2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      color: var(--text-primary);
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .form-group select,
+    .form-group input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 2px solid var(--border-light);
+      border-radius: 12px;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      background: white;
+    }
+
+    .form-group select:focus,
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--light-green);
+      box-shadow: 0 0 0 3px rgba(140, 195, 138, 0.1);
+    }
+
+    #buscador-btn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--primary-green) 0%, var(--light-green) 100%);
+      color: white;
+      padding: 0.875rem 1.5rem;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow-soft);
+    }
+
+    #buscador-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-medium);
+    }
+
+    #resultado-buscador {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: linear-gradient(135deg, #f0f9f0 0%, #e8f5e8 100%);
+      border-radius: 12px;
+      border-left: 4px solid var(--light-green);
+      font-weight: 500;
+      color: var(--primary-green);
+    }
+
+    /* Recuadro de avisos */
+    .avisos-container {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--border-light);
+    }
+
+    .avisos-container h2 {
+      color: var(--primary-green);
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .avisos-container h2::before {
+      content: "📢";
+      font-size: 1.2rem;
+    }
+
+    .aviso-item {
+      background: linear-gradient(135deg, rgba(240, 90, 170, 0.05) 0%, rgba(240, 90, 170, 0.02) 100%);
+      border: 1px solid rgba(240, 90, 170, 0.2);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .aviso-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .aviso-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: linear-gradient(180deg, var(--pink-accent) 0%, var(--light-green) 100%);
+    }
+
+    .aviso-fecha {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+
+    .aviso-texto {
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    /* Área principal */
+    .main-content {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--border-light);
+    }
+
+    /* Leyenda mejorada */
+    .leyenda {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding: 1rem;
+      background: linear-gradient(135deg, #f8fffe 0%, #f0f9f0 100%);
+      border-radius: 15px;
+      border: 1px solid var(--border-light);
+    }
+
+    .leyenda-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .cuadro {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      box-shadow: var(--shadow-soft);
+      border: 2px solid transparent;
+    }
+
+    .cuadro.verde {
+      background: linear-gradient(135deg, rgba(140, 195, 138, 0.8) 0%, rgba(168, 212, 166, 0.8) 100%);
+      border-color: var(--light-green);
+    }
+
+    .cuadro.rosa {
+      background: linear-gradient(135deg, rgba(240, 90, 170, 0.8) 0%, rgba(240, 120, 180, 0.8) 100%);
+      border-color: var(--pink-accent);
+    }
+
+    /* Botones de salones */
+    .submenu-salones, #button-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .submenu-salones button,
+    #button-bar button {
+      padding: 0.75rem 1.25rem;
+      border-radius: 25px;
+      border: 2px solid var(--border-light);
+      background: white;
+      color: var(--text-primary);
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .submenu-salones button:hover,
+    #button-bar button:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-medium);
+      border-color: var(--light-green);
+      background: linear-gradient(135deg, #f8fffe 0%, #f0f9f0 100%);
+    }
+
+    .submenu-salones button.active,
+    #button-bar button.active {
+      background: linear-gradient(135deg, var(--primary-green) 0%, var(--light-green) 100%);
+      color: white;
+      border-color: var(--light-green);
+      box-shadow: var(--shadow-medium);
+    }
+
+    /* Grid de horarios mejorado */
+    .horario-container h2 {
+      color: var(--primary-green);
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .horario-grid {
+      display: grid;
+      grid-template-columns: 120px repeat(5, 1fr);
+      grid-template-rows: auto repeat(24, 45px);
+      gap: 1px;
+      background: var(--border-light);
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: var(--shadow-medium);
+      margin: 1.5rem 0;
+    }
+
+    .grid-header {
+      background: linear-gradient(135deg, var(--primary-green) 0%, var(--light-green) 100%);
+      color: white;
+      padding: 1rem;
+      font-weight: 600;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+    }
+
+    .grid-hora {
+      background: linear-gradient(135deg, #f8fffe 0%, #f0f9f0 100%);
+      color: var(--text-secondary);
+      font-weight: 500;
+      font-size: 0.8rem;
+      padding: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      border-right: 2px solid var(--border-light);
+    }
+
+    .grid-clase {
+      margin: 2px;
+      border-radius: 8px;
+      padding: 0.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .grid-clase.semestral {
+      background: linear-gradient(135deg, rgba(140, 195, 138, 0.2) 0%, rgba(168, 212, 166, 0.3) 100%);
+      border: 2px solid var(--light-green);
+      color: var(--primary-green);
+    }
+
+    .grid-clase.extraordinaria {
+      background: linear-gradient(135deg, rgba(240, 90, 170, 0.15) 0%, rgba(240, 120, 180, 0.25) 100%);
+      border: 2px solid var(--pink-accent);
+      color: #7c325e;
+    }
+
+    .grid-clase:hover {
+      transform: scale(1.02);
+      box-shadow: var(--shadow-medium);
+    }
+
+    .materia-nombre {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      line-height: 1.2;
+    }
+
+    .materia-horario {
+      font-size: 0.75rem;
+      font-weight: 500;
+      opacity: 0.8;
+    }
+
+    /* Página de exportar */
+    .pagina-exportar {
+      display: none;
+      background: var(--background);
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .pagina-exportar.active {
+      display: block;
+    }
+
+    .exportar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: var(--card-bg);
+      border-radius: 15px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .exportar-header h1 {
+      color: var(--primary-green);
+      font-size: 2rem;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .volver-btn {
+      background: linear-gradient(135deg, var(--light-green) 0%, var(--accent-green) 100%);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 25px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      box-shadow: var(--shadow-soft);
+      transition: all 0.3s ease;
+    }
+
+    .volver-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-medium);
+    }
+
+    .exportar-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(800px, 1fr));
+      gap: 2rem;
+    }
+
+    .salon-exportar {
+      background: var(--card-bg);
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--border-light);
+      page-break-inside: avoid;
+    }
+
+    .salon-exportar h3 {
+      color: var(--primary-green);
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      text-align: center;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--border-light);
+    }
+
+    /* Modal mejorado */
+    .modal-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    .modal-bg.active {
+      display: flex;
+    }
+
+    .modal-solicitud {
+      background: white;
+      border-radius: 20px;
+      box-shadow: var(--shadow-large);
+      padding: 2.5rem;
+      max-width: 400px;
+      width: 100%;
+      position: relative;
+      animation: modalSlideIn 0.3s ease;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .modal-solicitud h2 {
+      color: var(--primary-green);
+      font-size: 1.5rem;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .modal-solicitud .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-solicitud button[type="submit"] {
+      width: 100%;
+      background: linear-gradient(135deg, var(--primary-green) 0%, var(--light-green) 100%);
+      color: white;
+      padding: 1rem;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .modal-solicitud button[type="submit"]:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-medium);
+    }
+
+    .close-modal-btn {
+      position: absolute;
+      right: 1rem;
+      top: 1rem;
+      font-size: 1.5rem;
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 50%;
+      transition: all 0.2s ease;
+    }
+
+    .close-modal-btn:hover {
+      background: rgba(0, 0, 0, 0.1);
+      color: var(--primary-green);
+    }
+
+    @media print {
+      .header-buttons, .exportar-header .volver-btn {
+        display: none;
+      }
+      
+      .salon-exportar {
+        page-break-inside: avoid;
+        margin-bottom: 2rem;
+      }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header-buttons {
+        position: relative;
+        top: auto;
+        right: auto;
+        justify-content: center;
+        margin: 1rem auto;
+        flex-wrap: wrap;
+      }
+
+      .main-container {
+        padding: 1rem;
+        gap: 1.5rem;
+      }
+
+      .open-modal-btn, .export-btn {
+        position: relative;
+        top: auto;
+        right: auto;
+        margin: 0.5rem;
+        flex: 1;
+        min-width: 140px;
+      }
+
+      .horario-grid {
+        grid-template-columns: 80px repeat(5, 1fr);
+        grid-template-rows: auto repeat(24, 40px);
+      }
+
+      .grid-header {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.8rem;
+      }
+
+      .grid-hora {
+        font-size: 0.7rem;
+        padding: 0.25rem;
+      }
+
+      .materia-nombre {
+        font-size: 0.75rem;
+      }
+
+      .materia-horario {
+        font-size: 0.65rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="main-header">
+    <h1>Horarios de los salones agosto-diciembre 2025</h1>
+    <h5>Contacto: Instagram <b>@Poolkiin</b></h5>
+  </header>
+
+  <div class="header-buttons">
+    <button class="open-modal-btn" onclick="openSolicitud()">📅 Solicitar espacio</button>
+    <button class="export-btn" onclick="mostrarPaginaExportar()">📄 Exportar horarios</button>
+  </div>
+
+  <div class="main-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- Buscador -->
+      <div class="buscador-libres">
+        <h2>Buscar espacio libre</h2>
+        <div class="form-group">
+          <label for="busc-dia">Día:</label>
+          <select id="busc-dia">
+            <option>Lunes</option>
+            <option>Martes</option>
+            <option>Miércoles</option>
+            <option>Jueves</option>
+            <option>Viernes</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="busc-hora">Hora de inicio:</label>
+          <input type="time" id="busc-hora" min="08:00" max="20:00" step="1800" value="08:00" />
+        </div>
+        <div class="form-group">
+          <label for="busc-duracion">Duración (min):</label>
+          <select id="busc-duracion">
+            <option value="30">30</option>
+            <option value="60" selected>60</option>
+            <option value="90">90</option>
+            <option value="120">120</option>
+             <option value="150">150</option>
+             <option value="180">180</option>
+             <option value="210">210</option>
+             <option value="240">240</option>
+          </select>
+        </div>
+        <button id="buscador-btn">🔍 Buscar</button>
+        <div id="resultado-buscador"></div>
+      </div>
+
+      <!-- Avisos y reportes -->
+      <div class="avisos-container">
+        <h2>Avisos y reportes</h2>
+        <div id="avisos-lista">
+          <!-- Los avisos se cargarán dinámicamente aquí -->
+          <div class="aviso-item">
+            <div class="aviso-fecha">Cargando...</div>
+            <div class="aviso-texto">Obteniendo avisos más recientes...</div>
+          </div>
+        </div>
+        <div style="text-align: center; margin-top: 1rem;">
+          <small style="color: var(--text-secondary); font-style: italic;">
+            ¿Tienes un reporte? Usa el botón "Solicitar espacio" para enviarlo.
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+      <div class="leyenda">
+        <div class="leyenda-item">
+          <span class="cuadro verde"></span>
+          <span>Clase semestral</span>
+        </div>
+        <div class="leyenda-item">
+          <span class="cuadro rosa"></span>
+          <span>Clase extraordinaria</span>
+        </div>
+      </div>
+
+      <div id="salones" class="tab-content active">
+        <div class="submenu-salones" id="button-bar"></div>
+        <div id="horario-espacio"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Página de exportar (oculta inicialmente) -->
+  <div id="pagina-exportar" class="pagina-exportar">
+    <div class="exportar-header">
+      <h1>📄 Exportar todos los horarios</h1>
+      <button class="volver-btn" onclick="volverAPaginaPrincipal()">← Volver</button>
+    </div>
+    <div id="exportar-contenido" class="exportar-grid">
+      <!-- Los horarios se generarán aquí dinámicamente -->
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal-solicitud-bg" class="modal-bg">
+    <div class="modal-solicitud">
+      <button class="close-modal-btn" onclick="closeSolicitud()">×</button>
+      <h2>Apartar un salón</h2>
+      <form id="my-form" action="https://api.sheetmonkey.io/form/wci2QVScCM6NKECY2PfGBB" method="post">
+        <div class="form-group">
+          <label>Email:</label>
+          <input type="email" name="email" required />
+        </div>
+        <div class="form-group">
+          <label>Salón, Horario, Día y ¿hasta qué fecha estará apartado el sitio?:</label>
+          <input type="text" name="message" required />
+        </div>
+        <input type="hidden" name="Created" value="x-sheetmonkey-current-date-time" />
+        <button type="submit">📤 Enviar solicitud</button>
+        <p id="my-form-status"></p>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const dias = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"];
+    const horaInicio = 8, horaFin = 20;
+
+    // Orden personalizado para los botones
+    const ordenSalones = [
+      "Salon 1", "Salon 2", "Salon 3", "Salon 4", "Salon 5", "Salon 6", "Salon 7", "Salon 8", "Salon 9", "Salon 10", "Salon 11", "Salon 12",
+      "Laboratorio 1", "Laboratorio 2", "Laboratorio 3", "Laboratorio 4",
+      "Salon De Usos Multiples"
+    ];
+
+    // Generar intervalos de 30 minutos
+    const intervalos = [];
+    for (let h = horaInicio; h < horaFin; h++) {
+      intervalos.push({inicio:`${String(h).padStart(2,'0')}:00`, fin:`${String(h).padStart(2,'0')}:30`});
+      intervalos.push({inicio:`${String(h).padStart(2,'0')}:30`, fin:`${String(h+1).padStart(2,'0')}:00`});
+    }
+
+    let horariosJSON = {};
+    let activeButton = null;
+
+    // URL de las hojas públicas
+    const SHEET_URL = "https://opensheet.elk.sh/1fDuIQUaqOSTsXPbwBrB7s5V7yfZZGfF0jUXcVS_WIJs/2";
+    const AVISOS_URL = "https://opensheet.elk.sh/1fDuIQUaqOSTsXPbwBrB7s5V7yfZZGfF0jUXcVS_WIJs
