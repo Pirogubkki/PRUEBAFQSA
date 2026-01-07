@@ -1,5 +1,5 @@
 const dias = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"];
-const horaInicio = 8, horaFin = 20;
+const horaInicio = 7, horaFin = 20;
 
 // Orden personalizado para los botones
 const ordenSalones = [
