@@ -1,29 +1,27 @@
 const dias = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"];
-const HORA_INICIO = 7;
-const HORA_FIN = 20;
+const horaInicio = 8, horaFin = 20;
 
 // Orden personalizado para los botones
 const ordenSalones = [
-  "Salon 1", "Salon 2", "Salon 3", "Salon 4", "Salon 5", "Salon 6",
-  "Salon 7", "Salon 8", "Salon 9", "Salon 10", "Salon 11", "Salon 12",
+  "Salon 1", "Salon 2", "Salon 3", "Salon 4", "Salon 5", "Salon 6", "Salon 7", "Salon 8", "Salon 9", "Salon 10", "Salon 11", "Salon 12",
   "Laboratorio 1", "Laboratorio 2", "Laboratorio 3", "Laboratorio 4",
   "Salon De Usos Multiples"
 ];
 
-// ===================== INTERVALOS =====================
+// Generar intervalos de 30 minutos
 const intervalos = [];
-for (let h = HORA_INICIO; h < HORA_FIN; h++) {
-  intervalos.push({ inicio: `${String(h).padStart(2,'0')}:00`, fin: `${String(h).padStart(2,'0')}:30` });
-  intervalos.push({ inicio: `${String(h).padStart(2,'0')}:30`, fin: `${String(h+1).padStart(2,'0')}:00` });
+for (let h = horaInicio; h < horaFin; h++) {
+  intervalos.push({inicio:`${String(h).padStart(2,'0')}:00`, fin:`${String(h).padStart(2,'0')}:30`});
+  intervalos.push({inicio:`${String(h).padStart(2,'0')}:30`, fin:`${String(h+1).padStart(2,'0')}:00`});
 }
 
 let horariosJSON = {};
 let activeButton = null;
 
-// URL Google Sheets
+// URL de tu hoja pública
 const SHEET_URL = "https://opensheet.elk.sh/1fDuIQUaqOSTsXPbwBrB7s5V7yfZZGfF0jUXcVS_WIJs/2";
 
-// ===================== NORMALIZADORES =====================
+// Normaliza día y salón
 function normalizaDia(str) {
   if (!str) return "";
   str = str.toLowerCase()
@@ -37,194 +35,446 @@ function normalizaDia(str) {
 
 function normalizaSalon(str) {
   if (!str) return "";
-  return str.normalize('NFD').replace(/[\u0300-\u036f]/g, "")
-    .replace(/\b([a-z])/g, l => l.toUpperCase());
+  return str.normalize('NFD').replace(/[\u0300-\u036f]/g, "").replace(/\b([a-z])/g, l => l.toUpperCase());
 }
 
+// Normaliza hora para tener dos dígitos en la hora y limpia espacios
 function normalizaHora(horaStr) {
   if (!horaStr) return "";
-  const [h, m] = horaStr.trim().split(":");
-  return `${String(h).padStart(2,'0')}:${m}`;
+  horaStr = horaStr.trim();
+  const parts = horaStr.split(':');
+  if (parts[0].length === 1) {
+    parts[0] = '0' + parts[0];
+  }
+  return parts.join(':');
 }
 
+// Normaliza nombres para comparación robusta
 function normalizaNombre(str) {
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
 }
 
-// ===================== DURACIÓN =====================
+// Función mejorada para calcular duración en intervalos
 function calcularDuracionEnIntervalos(inicio, fin) {
-  const inicioIdx = intervalos.findIndex(i => i.inicio === inicio);
-  const finIdx = intervalos.findIndex(i => i.fin === fin);
-  if (inicioIdx === -1 || finIdx === -1) return 1;
-  return finIdx - inicioIdx + 1;
+  let inicioIdx = -1;
+  let finIdx = -1;
+  
+  // Buscar índice de inicio
+  for (let i = 0; i < intervalos.length; i++) {
+    if (intervalos[i].inicio === inicio) {
+      inicioIdx = i;
+      break;
+    }
+  }
+  
+  // Buscar índice de fin
+  for (let i = 0; i < intervalos.length; i++) {
+    if (intervalos[i].fin === fin) {
+      finIdx = i;
+      break;
+    }
+  }
+  
+  if (inicioIdx === -1) {
+    console.warn(`No se encontró intervalo de inicio para: ${inicio}`);
+    return 1;
+  }
+  
+  if (finIdx === -1) {
+    console.warn(`No se encontró intervalo de fin para: ${fin}`);
+    return 1;
+  }
+  
+  const duracion = finIdx - inicioIdx + 1;
+  console.log(`Duración calculada para ${inicio} - ${fin}: ${duracion} intervalos`);
+  return duracion;
 }
 
-// ===================== AGRUPAR HORARIOS =====================
+// Convierte array plano a formato por salón y día
 function agrupaHorariosPorSalon(rows) {
   const resultado = {};
   rows.forEach(row => {
-    const salon = normalizaSalon((row["Salon"] || row["Salón"] || "").trim());
-    const dia = normalizaDia((row["Dia"] || row["día"] || "").trim());
+    const salon = normalizaSalon((row["Salon"] || row["Salón"] || row["salon"] || "").trim());
+    const dia = normalizaDia((row["Dia"] || row["día"] || row["dia"] || "").trim());
     if (!salon || !dia) return;
-
+    
     if (!resultado[salon]) {
-      resultado[salon] = { capacidad: row["capacidad"] ? Number(row["capacidad"]) : undefined };
+      resultado[salon] = {capacidad: row["capacidad"] ? Number(row["capacidad"]) : undefined};
       dias.forEach(d => resultado[salon][d] = []);
     }
-
+    
     if (dias.includes(dia)) {
-      const inicio = normalizaHora(row["Inicio"]);
-      const fin = normalizaHora(row["Fin"]);
+      const inicio = normalizaHora((row["Inicio"] || row["inicio"] || "").trim());
+      const fin = normalizaHora((row["Fin"] || row["fin"] || "").trim());
+      
+      // Validar que las horas sean válidas
       if (inicio && fin) {
         resultado[salon][dia].push({
-          materia: row["Materia"] || "",
-          inicio,
-          fin,
-          tipo: row["tipo"] || "",
-          comentario: row["comentario"] || ""
+          materia: (row["Materia"] || row["materia"] || "").trim(),
+          inicio: inicio,
+          fin: fin,
+          tipo: (row["tipo"] || "").trim(),
+          comentario: (row["comentario"] || "").trim()
         });
+      } else {
+        console.warn(`Horario inválido para ${salon} - ${dia}:`, {inicio, fin});
       }
     }
   });
   return resultado;
 }
 
-// ===================== BOTONES =====================
+// ORDEN PERSONALIZADO DE BOTONES
 function renderAllButtons(horarios) {
   const bar = document.getElementById('button-bar') || document.getElementById('submenu-salones');
   bar.innerHTML = "";
 
-  const mapa = {};
-  Object.keys(horarios).forEach(n => mapa[normalizaNombre(n)] = n);
+  // Mapa de nombre normalizado a nombre real
+  const mapaNombreReal = {};
+  Object.keys(horarios).forEach(n => {
+    mapaNombreReal[normalizaNombre(n)] = n;
+  });
 
+  // Primero en el orden deseado
   ordenSalones.forEach(n => {
-    const real = mapa[normalizaNombre(n)];
-    if (real) {
-      const btn = document.createElement("button");
-      btn.textContent = real;
-      btn.onclick = () => showSchedule(real, btn);
+    const nNorm = normalizaNombre(n);
+    if (mapaNombreReal[nNorm]) {
+      const btn = document.createElement('button');
+      btn.textContent = mapaNombreReal[nNorm];
+      btn.onclick = () => showSchedule(mapaNombreReal[nNorm], btn);
+      bar.appendChild(btn);
+    }
+  });
+
+  // Luego, los que no están en el orden personalizado
+  Object.keys(horarios).forEach(n => {
+    if (!ordenSalones.map(normalizaNombre).includes(normalizaNombre(n))) {
+      const btn = document.createElement('button');
+      btn.textContent = n;
+      btn.onclick = () => showSchedule(n, btn);
       bar.appendChild(btn);
     }
   });
 }
 
-// ===================== CONVERSIÓN EVENTOS =====================
 function convertirADatosEventos(nombre, horariosSalon) {
   const eventos = [];
   dias.forEach(dia => {
-    horariosSalon[dia].forEach(clase => {
-      eventos.push({ dia, ...clase });
-    });
+    if (horariosSalon[dia]) {
+      horariosSalon[dia].forEach(clase => {
+        eventos.push({
+          dia: dia,
+          inicio: clase.inicio,
+          fin: clase.fin,
+          materia: clase.materia,
+          tipo: clase.tipo,
+          comentario: clase.comentario
+        });
+      });
+    }
   });
   return eventos;
 }
 
-// ===================== CALENDARIO =====================
+// Función mejorada para renderizar el calendario con CSS Grid
 function renderCalendario(id, data, nombre) {
   const cont = document.getElementById(id);
   cont.innerHTML = "";
   cont.className = "horario-container";
 
-  const titulo = document.createElement("h2");
-  titulo.textContent = nombre;
-  cont.appendChild(titulo);
+  // Título y capacidad
+  const tit = document.createElement("h2");
+  tit.textContent = nombre;
+  cont.appendChild(tit);
+  
+  if (horariosJSON[nombre] && horariosJSON[nombre].capacidad) {
+    const capacidadDiv = document.createElement("div");
+    capacidadDiv.style.cssText = "font-size:15px; color:#388; margin-bottom: 10px;";
+    capacidadDiv.textContent = `Capacidad: ${horariosJSON[nombre].capacidad} alumnos`;
+    cont.appendChild(capacidadDiv);
+  }
 
-  const grid = document.createElement("div");
-  grid.className = "horario-grid";
-  grid.style.display = "grid";
-  grid.style.gridTemplateColumns = `120px repeat(${dias.length}, 1fr)`;
-  grid.style.gridTemplateRows = `auto repeat(${intervalos.length}, 40px)`;
-  cont.appendChild(grid);
+  // Crear contenedor grid
+  const gridContainer = document.createElement("div");
+  gridContainer.className = "horario-grid";
+  
+  // Configurar CSS Grid
+  gridContainer.style.cssText = `
+    display: grid;
+    grid-template-columns: 120px repeat(${dias.length}, 1fr);
+    grid-template-rows: auto repeat(${intervalos.length}, 40px);
+    gap: 1px;
+    background-color: #f0f5f2;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    margin: 20px 0;
+  `;
+  
+  cont.appendChild(gridContainer);
 
-  grid.appendChild(Object.assign(document.createElement("div"), { textContent: "Hora" }));
-  dias.forEach(d => grid.appendChild(Object.assign(document.createElement("div"), { textContent: d })));
+  // Header - celda vacía para la esquina
+  const cornerCell = document.createElement("div");
+  cornerCell.className = "grid-header";
+  cornerCell.textContent = "Hora";
+  gridContainer.appendChild(cornerCell);
 
-  const ocupadas = new Set();
+  // Headers de días
+  dias.forEach(dia => {
+    const headerCell = document.createElement("div");
+    headerCell.className = "grid-header";
+    headerCell.textContent = dia;
+    gridContainer.appendChild(headerCell);
+  });
 
-  intervalos.forEach((intv, fila) => {
-    const hora = document.createElement("div");
-    hora.textContent = `${intv.inicio} - ${intv.fin}`;
-    hora.style.gridRow = fila + 2;
-    hora.style.gridColumn = 1;
-    grid.appendChild(hora);
+  // Crear un mapa para rastrear qué celdas están ocupadas
+  const celdasOcupadas = new Set();
 
-    dias.forEach((dia, col) => {
-      if (ocupadas.has(`${fila}-${col}`)) return;
+  // Para cada intervalo de tiempo
+  intervalos.forEach((intervalo, filaIdx) => {
+    // Celda de hora
+    const horaCell = document.createElement("div");
+    horaCell.className = "grid-hora";
+    horaCell.textContent = `${intervalo.inicio} - ${intervalo.fin}`;
+    horaCell.style.cssText = `
+      grid-row: ${filaIdx + 2};
+      grid-column: 1;
+    `;
+    gridContainer.appendChild(horaCell);
 
-      const clase = data.find(ev => ev.dia === dia && ev.inicio === intv.inicio);
-      if (clase) {
-        const dur = calcularDuracionEnIntervalos(clase.inicio, clase.fin);
-        for (let i = 0; i < dur; i++) ocupadas.add(`${fila+i}-${col}`);
+    // Para cada día
+    dias.forEach((dia, diaIdx) => {
+      const celdaKey = `${filaIdx}-${diaIdx}`;
+      
+      // Solo procesar si la celda no está ocupada
+      if (!celdasOcupadas.has(celdaKey)) {
+        // Buscar si hay una clase que comience exactamente en este intervalo y día
+        const clase = data.find(ev => 
+          ev.dia === dia && ev.inicio === intervalo.inicio
+        );
 
-        const cell = document.createElement("div");
-        cell.style.gridRow = `${fila+2} / span ${dur}`;
-        cell.style.gridColumn = col + 2;
-        cell.textContent = `${clase.materia}\n${clase.inicio} - ${clase.fin}`;
-        cell.style.background = "#cde";
-        grid.appendChild(cell);
-      } else {
-        const empty = document.createElement("div");
-        empty.style.gridRow = fila + 2;
-        empty.style.gridColumn = col + 2;
-        grid.appendChild(empty);
+        if (clase) {
+          // Calcular duración
+          const duracion = calcularDuracionEnIntervalos(clase.inicio, clase.fin);
+          
+          // Marcar todas las celdas ocupadas por esta clase
+          for (let i = 0; i < duracion; i++) {
+            celdasOcupadas.add(`${filaIdx + i}-${diaIdx}`);
+          }
+          
+          // Crear celda de clase
+          const claseCell = document.createElement("div");
+          
+          // Determinar clase CSS
+          let claseCSS = "grid-clase";
+          if (clase.tipo === "extraordinaria") {
+            claseCSS += " extraordinaria";
+          } else {
+            claseCSS += " semestral";
+          }
+          claseCell.className = claseCSS;
+          
+          // Posicionar en el grid
+          claseCell.style.cssText = `
+            grid-row: ${filaIdx + 2} / span ${duracion};
+            grid-column: ${diaIdx + 2};
+            background: ${clase.tipo === "extraordinaria" ? "rgba(240, 90, 170, 0.2)" : "rgba(140, 195, 138, 0.25)"};
+            border: 2px solid ${clase.tipo === "extraordinaria" ? "#f05aaa" : "#8cc38a"};
+            color: ${clase.tipo === "extraordinaria" ? "#7c325e" : "#1e3d24"};
+            border-radius: 8px;
+            padding: 6px 4px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.2;
+            cursor: pointer;
+            transition: all 0.2s ease;
+          `;
+          
+          // Hover effects
+          claseCell.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.02)';
+            this.style.background = clase.tipo === "extraordinaria" ? "rgba(240, 90, 170, 0.35)" : "rgba(140, 195, 138, 0.4)";
+          });
+          
+          claseCell.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+            this.style.background = clase.tipo === "extraordinaria" ? "rgba(240, 90, 170, 0.2)" : "rgba(140, 195, 138, 0.25)";
+          });
+          
+          // Contenido
+          const materiaDiv = document.createElement("div");
+          materiaDiv.className = "materia-nombre";
+          materiaDiv.textContent = clase.materia;
+          materiaDiv.style.cssText = `
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 3px;
+            line-height: 1.1;
+          `;
+          claseCell.appendChild(materiaDiv);
+          
+          const horarioDiv = document.createElement("div");
+          horarioDiv.className = "materia-horario";
+          horarioDiv.textContent = `${clase.inicio} - ${clase.fin}`;
+          horarioDiv.style.cssText = `
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 2px;
+            opacity: 0.8;
+          `;
+          claseCell.appendChild(horarioDiv);
+          
+          if (clase.comentario) {
+            const comentarioDiv = document.createElement("div");
+            comentarioDiv.className = "materia-comentario";
+            comentarioDiv.textContent = clase.comentario;
+            comentarioDiv.style.cssText = `
+              font-size: 10px;
+              font-style: italic;
+              opacity: 0.7;
+              margin-top: 2px;
+              line-height: 1.1;
+            `;
+            claseCell.appendChild(comentarioDiv);
+            claseCell.title = clase.comentario;
+          }
+          
+          gridContainer.appendChild(claseCell);
+          
+          console.log(`Clase añadida: ${clase.materia} en ${dia} de ${clase.inicio} a ${clase.fin}, fila ${filaIdx + 2}, span ${duracion}`);
+        } else {
+          // Crear celda vacía con fondo blanco
+          const celdaVacia = document.createElement("div");
+          celdaVacia.style.cssText = `
+            grid-row: ${filaIdx + 2};
+            grid-column: ${diaIdx + 2};
+            background: white;
+            border: 1px solid #ddd;
+          `;
+          gridContainer.appendChild(celdaVacia);
+        }
       }
     });
   });
 }
 
-// ===================== MOSTRAR SALÓN =====================
 function showSchedule(nombre, btn) {
-  if (activeButton) activeButton.classList.remove("active");
-  btn.classList.add("active");
+  if (activeButton) activeButton.classList.remove('active');
+  btn.classList.add('active');
   activeButton = btn;
-
+  
   const eventos = convertirADatosEventos(nombre, horariosJSON[nombre]);
-  renderCalendario("horario-espacio", eventos, nombre);
+  console.log(`Mostrando horario para ${nombre}:`, eventos);
+  
+  const contenedorId = document.getElementById('horario-espacio') ? 'horario-espacio' : 'horario-salon';
+  renderCalendario(contenedorId, eventos, nombre);
 }
 
-// ===================== CARGA DATOS =====================
+// --- Cargar datos desde Google Sheets ---
 fetch(SHEET_URL)
-  .then(r => r.json())
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  })
   .then(rows => {
+    console.log("Datos recibidos:", rows);
     horariosJSON = agrupaHorariosPorSalon(rows);
-    renderAllButtons(horariosJSON);
-    const primer = Object.keys(horariosJSON)[0];
-    if (primer) showSchedule(primer, document.querySelector("button"));
+    console.log("Horarios procesados:", horariosJSON);
+    
+    if (Object.keys(horariosJSON).length === 0) {
+      const contenedorId = document.getElementById('horario-espacio') ? 'horario-espacio' : 'horario-salon';
+      document.getElementById(contenedorId).innerHTML = "<b>No hay horarios cargados.</b>";
+    } else {
+      renderAllButtons(horariosJSON);
+      // Mostrar el primer salón por defecto
+      const primerSalon = ordenSalones.map(normalizaNombre).find(nombreNorm =>
+        Object.keys(horariosJSON).map(normalizaNombre).includes(nombreNorm)
+      );
+      let nombreReal = primerSalon
+        ? Object.keys(horariosJSON).find(n => normalizaNombre(n) === primerSalon)
+        : Object.keys(horariosJSON)[0];
+      if (nombreReal) {
+        const primerBoton = document.querySelector('#button-bar button, .submenu-salones button');
+        if (primerBoton) {
+          showSchedule(nombreReal, primerBoton);
+        }
+      }
+    }
+  })
+  .catch(error => {
+    console.error('Error cargando datos:', error);
+    const contenedorId = document.getElementById('horario-espacio') ? 'horario-espacio' : 'horario-salon';
+    document.getElementById(contenedorId).innerHTML = "<b>Error cargando datos.</b>";
   });
 
-// ===================== BUSCADOR =====================
-function buscarEspaciosLibres(dia, horaStr, duracionMin) {
-  const [h, m] = horaStr.split(":").map(Number);
-  if (isNaN(h) || isNaN(m) || h < HORA_INICIO || h >= HORA_FIN) return [];
+// --- BUSCADOR DE ESPACIOS LIBRES ---
+function buscarEspaciosLibres(dia, horaInicio, duracionMin) {
+  // Validación de horario: solo entre 08:00 y 20:00
+  const [h, m] = horaInicio.split(':').map(Number);
+  if (
+    isNaN(h) || isNaN(m) || 
+    h < horaInicio || h >= horaFin || 
+    m < 0 || m > 59
+  ) {
+    // Si el horario no es válido, regresa un array vacío
+    return [];
+  }
 
-  const ini = h * 60 + m;
-  const fin = ini + duracionMin;
+  const libres = [];
+  const iniMin = h * 60 + m;
+  const finMin = iniMin + duracionMin;
 
-  return Object.keys(horariosJSON).filter(salon => {
-    return !horariosJSON[salon][dia].some(ev => {
-      const [hi, mi] = ev.inicio.split(":").map(Number);
-      const [hf, mf] = ev.fin.split(":").map(Number);
-      const eIni = hi * 60 + mi;
-      const eFin = hf * 60 + mf;
-      return !(fin <= eIni || ini >= eFin);
+  Object.keys(horariosJSON).forEach(salon => {
+    const eventos = horariosJSON[salon][dia] || [];
+    // Si no hay eventos, está libre todo el día
+    let ocupado = eventos.some(ev => {
+      // Convertir horas a minutos
+      const [hin, minin] = ev.inicio.split(':');
+      const [hfin, minfin] = ev.fin.split(':');
+      const evIni = parseInt(hin) * 60 + parseInt(minin);
+      const evFin = parseInt(hfin) * 60 + parseInt(minfin);
+      // ¿Se empalman?
+      return !(finMin <= evIni || iniMin >= evFin);
     });
+    if (!ocupado) libres.push(salon);
   });
+  return libres;
 }
 
-// ===================== EVENTO BUSCADOR =====================
-document.addEventListener("DOMContentLoaded", () => {
-  const btn = document.getElementById("buscador-btn");
-  if (!btn) return;
+// Vincular al formulario de búsqueda
+document.addEventListener('DOMContentLoaded', function() {
+  const btn = document.getElementById('buscador-btn');
+  if (btn) {
+    btn.onclick = function() {
+      const dia = document.getElementById('busc-dia').value;
+      const hora = document.getElementById('busc-hora').value;
+      const dur = parseInt(document.getElementById('busc-duracion').value);
 
-  btn.onclick = () => {
-    const dia = document.getElementById("busc-dia").value;
-    const hora = document.getElementById("busc-hora").value;
-    const dur = parseInt(document.getElementById("busc-duracion").value);
+      // Validación visual directa para el usuario
+      const [h, m] = hora.split(':').map(Number);
+      if (
+        isNaN(h) || isNaN(m) || 
+        h < horaInicio || h >= horaFin || 
+        m < 0 || m > 59
+      ) {
+        document.getElementById('resultado-buscador').innerHTML = `<b>El horario debe estar entre 08:00 y 20:00, con formato HH:MM.</b>`;
+        return;
+      }
 
-    const libres = buscarEspaciosLibres(dia, hora, dur);
-    document.getElementById("resultado-buscador").innerHTML =
-      libres.length
-        ? `<b>Espacios libres:</b> ${libres.join(", ")}`
-        : `<b>No hay espacios libres 😢</b>`;
-  };
+      const libres = buscarEspaciosLibres(dia, hora, dur);
+      const resDiv = document.getElementById('resultado-buscador');
+      if (libres.length) {
+        resDiv.innerHTML = `<b>Espacios libres:</b> ${libres.map(s => `<span style="margin-right:8px;">${s}</span>`).join('')}`;
+      } else {
+        resDiv.innerHTML = `<b>No hay espacios libres en ese horario 😢</b>`;
+      }
+    };
+  }
 });
