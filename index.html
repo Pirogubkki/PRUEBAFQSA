@@ -12,6 +12,19 @@
   <meta property="og:type" content="website">
   <meta property="og:image" content="assets/og-image.png">
 
+  <!-- Aplica el tema guardado (o el del sistema como respaldo inicial) antes de pintar, para evitar parpadeo -->
+  <script>
+    (function () {
+      try {
+        const guardado = localStorage.getItem('fq_tema');
+        const prefiereOscuro = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-theme', guardado || (prefiereOscuro ? 'dark' : 'light'));
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+
   <!-- Favicon en colores institucionales (SVG en línea, no requiere subir archivo) -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23002E5F'/%3E%3Ctext x='32' y='43' font-family='Arial, sans-serif' font-size='28' font-weight='700' fill='%23C79316' text-anchor='middle'%3EFQ%3C/text%3E%3C/svg%3E">
 
@@ -163,8 +176,6 @@
     </div>
   </div>
 
-  <!-- Librería para generar códigos QR (se usa solo al pedir el QR de un salón) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
   <script src="script.js" defer></script>
 </body>
 </html>

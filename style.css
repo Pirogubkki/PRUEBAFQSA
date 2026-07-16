@@ -32,31 +32,49 @@
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* ---------- Modo oscuro automático ---------- */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --navy: #4A8CD6;
-    --navy-light: #6BA6E8;
-    --navy-tint: #16233A;
-    --gold: #E0AE3D;
-    --gold-light: #F0C868;
-    --gold-tint: #2E260F;
-    --gold-ink: #F0C868;
+/* ---------- Modo oscuro: activado manualmente con el botón (data-theme en <html>) ---------- */
+:root[data-theme="dark"] {
+  --navy: #4A8CD6;
+  --navy-light: #6BA6E8;
+  --navy-tint: #16233A;
+  --gold: #E0AE3D;
+  --gold-light: #F0C868;
+  --gold-tint: #2E260F;
+  --gold-ink: #F0C868;
 
-    --surface: #10192B;
-    --surface-alt: #0A1220;
-    --ink: #E7ECF5;
-    --ink-muted: #93A0B8;
-    --border: #24304A;
+  --surface: #10192B;
+  --surface-alt: #0A1220;
+  --ink: #E7ECF5;
+  --ink-muted: #93A0B8;
+  --border: #24304A;
 
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
-    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
-    --shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.6);
-  }
-
-  .main-header { background: linear-gradient(120deg, #071527 0%, #0F2A4D 100%); }
-  .grid-header { background: #0F2A4D; }
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.6);
 }
+
+:root[data-theme="dark"] .main-header { background: linear-gradient(120deg, #071527 0%, #0F2A4D 100%); }
+:root[data-theme="dark"] .grid-header { background: #0F2A4D; }
+
+/* ---------- Botón de modo oscuro/claro ---------- */
+.theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--surface);
+  color: var(--navy);
+  border: 1.5px solid var(--navy-tint);
+  padding: 0.7rem 1.1rem;
+  border-radius: 50px;
+  cursor: pointer;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease), background 0.25s var(--ease);
+}
+
+.theme-toggle-btn:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -340,8 +358,40 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 }
 
 .aviso-texto { font-size: 0.92rem; color: var(--ink); }
+.aviso-comentario { font-size: 0.82rem; color: var(--ink-muted); font-style: italic; margin-top: 0.3rem; }
 .aviso-nota { text-align: center; margin-top: 1rem; font-size: 0.82rem; color: var(--ink-muted); font-style: italic; }
 .dia-vacio { text-align: center; color: var(--ink-muted); font-size: 0.9rem; padding: 0.5rem 0; }
+
+.estado-pill {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.aviso-item.estado-aceptado { background: #E4F5EA; }
+.aviso-item.estado-aceptado::before { background: #3FA967; }
+.aviso-item.estado-aceptado .estado-pill { background: #C6ECD3; color: #1E6B3D; }
+
+.aviso-item.estado-rechazado { background: #FBE7EF; }
+.aviso-item.estado-rechazado::before { background: #E0629A; }
+.aviso-item.estado-rechazado .estado-pill { background: #F6C9DD; color: #99295A; }
+
+.aviso-item.estado-revision { background: #FBF3D9; }
+.aviso-item.estado-revision::before { background: #E0B93D; }
+.aviso-item.estado-revision .estado-pill { background: #F5E6A8; color: #7A5E0A; }
+
+:root[data-theme="dark"] .aviso-item.estado-aceptado { background: #123423; }
+:root[data-theme="dark"] .aviso-item.estado-aceptado .estado-pill { background: #1E5C3C; color: #A9E8C3; }
+
+:root[data-theme="dark"] .aviso-item.estado-rechazado { background: #3A1A28; }
+:root[data-theme="dark"] .aviso-item.estado-rechazado .estado-pill { background: #6B2A48; color: #F2B9D4; }
+
+:root[data-theme="dark"] .aviso-item.estado-revision { background: #362D0F; }
+:root[data-theme="dark"] .aviso-item.estado-revision .estado-pill { background: #5C4B14; color: #F2DA8D; }
 
 /* ---------- Leyenda ---------- */
 .leyenda {
@@ -709,10 +759,6 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 .close-modal-btn:hover { background: var(--navy-tint); color: var(--navy); }
 
 #my-form-status { margin-top: 0.7rem; text-align: center; font-weight: 600; font-size: 0.9rem; }
-
-.qr-modal { text-align: center; }
-#qr-canvas-holder { display: flex; justify-content: center; margin: 1rem 0; }
-.qr-nota { font-size: 0.82rem; color: var(--ink-muted); }
 
 @media print {
   .header-buttons, .exportar-header .volver-btn { display: none; }

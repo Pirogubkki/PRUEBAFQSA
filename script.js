@@ -32,7 +32,7 @@ const SHEET_URL = "https://opensheet.elk.sh/1fDuIQUaqOSTsXPbwBrB7s5V7yfZZGfF0jUX
 const AVISOS_URL = "https://opensheet.elk.sh/1fDuIQUaqOSTsXPbwBrB7s5V7yfZZGfF0jUXcVS_WIJs/3";
 // Hoja "Solicitudes" (posición 1). Solo se usa para mostrar un historial breve
 // y nunca se expone el correo del solicitante, solo fecha + mensaje.
-const SOLICITUDES_URL = "https://opensheet.elk.sh/1fDuIQUaqOSTsXPbwBrB7s5V7yfZZGfF0jUXcVS_WIJs/1";
+const SOLICITUDES_URL = "https://opensheet.elk.sh/1fDuIQUaqOSTsXPbwBrB7s5V7yfZZGfF0jUXcVS_WIJs/4";
 
 const DIAS_JS_A_ES = ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
 
@@ -499,11 +499,9 @@ function renderCalendario(id, data, nombre) {
   acciones.className = "salon-acciones";
   acciones.innerHTML = `
     <button type="button" class="accion-btn" id="btn-ics">Agregar a calendario (.ics)</button>
-    <button type="button" class="accion-btn" id="btn-qr">Código QR de este salón</button>
   `;
   cont.appendChild(acciones);
   cont.querySelector('#btn-ics').onclick = () => exportarICS(nombre, data);
-  cont.querySelector('#btn-qr').onclick = () => mostrarQR(nombre);
 
   renderProximaClase(nombre);
 
@@ -607,42 +605,6 @@ function exportarICS(nombreSalon, eventos) {
 }
 
 /* ============================================================
-   Código QR por salón (usa la librería "qrcode" cargada por CDN)
-   ============================================================ */
-
-function mostrarQR(nombreSalon) {
-  let modal = document.getElementById('qr-modal-bg');
-  if (!modal) {
-    modal = document.createElement('div');
-    modal.id = 'qr-modal-bg';
-    modal.className = 'modal-bg';
-    modal.innerHTML = `
-      <div class="modal-solicitud qr-modal">
-        <button class="close-modal-btn" id="qr-close" aria-label="Cerrar">×</button>
-        <h2>Código QR del salón</h2>
-        <div id="qr-canvas-holder"></div>
-        <p class="qr-nota">Pégalo en la puerta del salón. Al escanearlo, cualquiera verá directo el horario de este espacio.</p>
-      </div>`;
-    document.body.appendChild(modal);
-    modal.querySelector('#qr-close').onclick = () => modal.classList.remove('active');
-    modal.onclick = (e) => { if (e.target === modal) modal.classList.remove('active'); };
-  }
-
-  const holder = modal.querySelector('#qr-canvas-holder');
-  holder.innerHTML = "";
-
-  const url = `${location.origin}${location.pathname}?salon=${encodeURIComponent(nombreSalon)}`;
-
-  if (typeof QRCode === "undefined") {
-    holder.innerHTML = `<p class="qr-nota">No se pudo cargar el generador de QR. Enlace directo: <br><code>${url}</code></p>`;
-  } else {
-    new QRCode(holder, { text: url, width: 200, height: 200, colorDark: "#002E5F", colorLight: "#ffffff" });
-  }
-
-  modal.classList.add('active');
-}
-
-/* ============================================================
    Búsqueda de espacios libres
    ============================================================ */
 
@@ -719,6 +681,14 @@ function cargarAvisos() {
    No se muestra el correo del solicitante, solo fecha + mensaje.
    ============================================================ */
 
+function claseEstado(estadoRaw) {
+  const e = normalizaNombre((estadoRaw || "").trim());
+  if (e === "aceptado") return "estado-aceptado";
+  if (e === "rechazado") return "estado-rechazado";
+  if (e === "en revision" || e === "en revisión") return "estado-revision";
+  return "";
+}
+
 function mostrarHistorialSolicitudes(filas) {
   const container = document.getElementById('historial-solicitudes-lista');
   if (!container) return;
@@ -732,14 +702,17 @@ function mostrarHistorialSolicitudes(filas) {
   const recientes = filas.slice(-5).reverse();
 
   recientes.forEach(fila => {
-    const fecha = fila["Created"] || fila["created"] || fila["Marca temporal"] || fila["Timestamp"] || "Sin fecha";
-    const mensaje = fila["message"] || fila["Message"] || fila["mensaje"] || "Sin detalle";
+    const solicitud = fila["Solicitud"] || fila["solicitud"] || "Sin detalle";
+    const comentario = fila["Comentario"] || fila["comentario"] || "";
+    const fecha = fila["Creado"] || fila["creado"] || "Sin fecha";
+    const estado = fila["Estado"] || fila["estado"] || "";
 
     const item = document.createElement('div');
-    item.className = 'aviso-item';
+    item.className = 'aviso-item ' + claseEstado(estado);
     item.innerHTML = `
-      <div class="aviso-fecha">${escapeHTML(fecha)}</div>
-      <div class="aviso-texto">${escapeHTML(mensaje)}</div>
+      <div class="aviso-fecha">${escapeHTML(fecha)}${estado ? ` · <span class="estado-pill">${escapeHTML(estado)}</span>` : ""}</div>
+      <div class="aviso-texto">${escapeHTML(solicitud)}</div>
+      ${comentario ? `<div class="aviso-comentario">${escapeHTML(comentario)}</div>` : ""}
     `;
     container.appendChild(item);
   });
