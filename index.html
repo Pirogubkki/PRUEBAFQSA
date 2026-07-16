@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horarios Facultad de Química · UADY</title>
+  <meta name="description" content="Consulta en tiempo real los horarios de salones y laboratorios de la Facultad de Química, UADY. Busca espacios libres, exporta horarios y revisa avisos.">
+
+  <!-- Open Graph: vista previa al compartir el link -->
+  <meta property="og:title" content="Horarios Facultad de Química · UADY">
+  <meta property="og:description" content="Consulta espacios libres, horarios por salón y avisos de la Facultad de Química.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="assets/og-image.png">
+
+  <!-- Favicon en colores institucionales (SVG en línea, no requiere subir archivo) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23002E5F'/%3E%3Ctext x='32' y='43' font-family='Arial, sans-serif' font-size='28' font-weight='700' fill='%23C79316' text-anchor='middle'%3EFQ%3C/text%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="main-header">
+    <h1>Horarios de los salones agosto-diciembre 2025</h1>
+    <h5>Contacto: Instagram <b>@Poolkiin</b></h5>
+  </header>
+
+  <div class="header-buttons">
+    <button class="open-modal-btn" onclick="openSolicitud()" aria-label="Solicitar espacio o enviar reporte">
+      <img class="icon-btn" src="assets/icons/calendario.png" alt="" onerror="this.remove()">
+      Solicitar espacio
+    </button>
+    <button class="export-btn" onclick="mostrarPaginaExportar()" aria-label="Exportar todos los horarios en PDF">
+      <img class="icon-btn" src="assets/icons/exportar.png" alt="" onerror="this.remove()">
+      Exportar horarios
+    </button>
+  </div>
+
+  <div class="main-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- Buscador de espacios libres -->
+      <div class="buscador-libres">
+        <h2>
+          <img src="assets/icons/reloj.png" alt="" onerror="this.remove()">
+          Buscar espacio libre
+        </h2>
+        <div class="form-group">
+          <label for="busc-dia">Día:</label>
+          <select id="busc-dia">
+            <option>Lunes</option>
+            <option>Martes</option>
+            <option>Miércoles</option>
+            <option>Jueves</option>
+            <option>Viernes</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="busc-hora">Hora de inicio:</label>
+          <input type="time" id="busc-hora" min="08:00" max="20:00" step="1800" value="08:00" />
+        </div>
+        <div class="form-group">
+          <label for="busc-duracion">Duración (min):</label>
+          <select id="busc-duracion">
+            <option value="30">30</option>
+            <option value="60" selected>60</option>
+            <option value="90">90</option>
+            <option value="120">120</option>
+            <option value="150">150</option>
+            <option value="180">180</option>
+            <option value="210">210</option>
+            <option value="240">240</option>
+          </select>
+        </div>
+        <button id="buscador-btn" aria-label="Buscar espacios disponibles">
+          <img class="icon-btn" src="assets/icons/buscar.png" alt="" onerror="this.remove()">
+          Buscar
+        </button>
+        <div id="resultado-buscador" role="status"></div>
+      </div>
+
+      <!-- Avisos y reportes -->
+      <div class="avisos-container">
+        <h2>
+          <img src="assets/icons/megafono.png" alt="" onerror="this.remove()">
+          Avisos y reportes
+        </h2>
+        <div id="avisos-lista">
+          <div class="aviso-item">
+            <div class="aviso-fecha">Cargando...</div>
+            <div class="aviso-texto">Obteniendo avisos más recientes...</div>
+          </div>
+        </div>
+        <p class="aviso-nota">¿Tienes un reporte? Usa el botón "Solicitar espacio" para enviarlo.</p>
+      </div>
+
+      <!-- Historial de solicitudes recientes (sin datos personales) -->
+      <div class="historial-solicitudes">
+        <h2>Solicitudes recientes</h2>
+        <div id="historial-solicitudes-lista">
+          <div class="aviso-item">
+            <div class="aviso-fecha">Cargando...</div>
+            <div class="aviso-texto">Obteniendo solicitudes recientes...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+      <div class="leyenda">
+        <div class="leyenda-item"><span class="cuadro semestral"></span><span>Clase semestral</span></div>
+        <div class="leyenda-item"><span class="cuadro extraordinaria"></span><span>Clase extraordinaria</span></div>
+        <div class="leyenda-item"><span class="cuadro larga"></span><span>3 horas o más</span></div>
+        <div class="leyenda-item"><span class="cuadro actual"></span><span>Clase en curso</span></div>
+      </div>
+
+      <div class="filtro-wrap">
+        <input type="text" id="filtro-salon" placeholder="Buscar salón o materia..." aria-label="Buscar salón o materia">
+      </div>
+
+      <div id="salones" class="tab-content active">
+        <div class="submenu-salones" id="button-bar"></div>
+        <div id="horario-espacio"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Página de exportar (oculta inicialmente) -->
+  <div id="pagina-exportar" class="pagina-exportar">
+    <div class="exportar-header">
+      <h1>Exportar todos los horarios</h1>
+      <button class="volver-btn" onclick="volverAPaginaPrincipal()" aria-label="Volver a la página principal">
+        <img class="icon-btn" src="assets/icons/volver.png" alt="" onerror="this.remove()">
+        Volver
+      </button>
+    </div>
+    <div id="exportar-contenido" class="exportar-grid"></div>
+  </div>
+
+  <!-- Modal de solicitud -->
+  <div id="modal-solicitud-bg" class="modal-bg">
+    <div class="modal-solicitud">
+      <button class="close-modal-btn" onclick="closeSolicitud()" aria-label="Cerrar formulario">×</button>
+      <h2>Apartar un salón</h2>
+      <form id="my-form" action="https://api.sheetmonkey.io/form/wci2QVScCM6NKECY2PfGBB" method="post">
+        <div class="form-group">
+          <label>Email:</label>
+          <input type="email" name="email" required />
+        </div>
+        <div class="form-group">
+          <label>Salón, Horario, Día y ¿hasta qué fecha estará apartado el sitio?:</label>
+          <input type="text" name="message" required />
+        </div>
+        <input type="hidden" name="Created" value="x-sheetmonkey-current-date-time" />
+        <button type="submit" aria-label="Enviar solicitud">
+          <img class="icon-btn" src="assets/icons/enviar.png" alt="" onerror="this.remove()">
+          Enviar solicitud
+        </button>
+        <p id="my-form-status"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Librería para generar códigos QR (se usa solo al pedir el QR de un salón) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+  <script src="script.js" defer></script>
+</body>
+</html>
