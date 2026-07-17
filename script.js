@@ -891,6 +891,22 @@ cargarHistorialSolicitudes();
    ============================================================ */
 
 document.addEventListener('DOMContentLoaded', function () {
+  const themeBtn = document.getElementById('theme-toggle');
+  if (themeBtn) {
+    const actualizarBotonTema = () => {
+      const esOscuro = document.documentElement.getAttribute('data-theme') === 'dark';
+      themeBtn.setAttribute('aria-pressed', String(esOscuro));
+      themeBtn.querySelector('span').textContent = esOscuro ? 'Modo claro' : 'Modo oscuro';
+    };
+    actualizarBotonTema();
+    themeBtn.onclick = () => {
+      const nuevo = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', nuevo);
+      try { localStorage.setItem('fq_tema', nuevo); } catch (e) {}
+      actualizarBotonTema();
+    };
+  }
+
   const btn = document.getElementById('buscador-btn');
   if (btn) {
     btn.onclick = function () {
